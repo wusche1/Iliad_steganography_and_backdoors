@@ -1,0 +1,62 @@
+# Zotero Sync Configuration
+
+# Collection name - defaults to the project folder name if not specified
+# collection_name: "my-collection"
+
+# Output directory for synced files
+output_dir: "bib"
+
+# Zotero data directory
+zotero_data_dir: "~/Zotero"
+
+# Check interval in seconds (for daemon mode)
+check_interval: 30
+
+# Label extraction settings
+label_extraction:
+  # Output file for extracted labels
+  output_file: "bib/labels.bib"
+
+# Text extraction settings
+extraction:
+  # Maximum file size for text extraction (in MB)
+  max_file_size: 100
+  
+  # HTML extraction settings
+  html:
+    # Remove base64-encoded images from extracted text (reduces clutter)
+    remove_base64_images: true
+    # Websites that should use LessWrong-style extraction (JSON-LD first, then specific selectors)
+    # Add any domain that uses similar structured data formats
+    lesswrong_sites:
+      - "lesswrong.com"
+      - "alignmentforum.org" 
+
+# Chapter splitting settings for RAG
+chapter_split:
+  # Minimum number of characters for a chapter (shorter chapters get merged with subchapters)
+  min_chars: 500
+
+# Embeddings settings
+embeddings:
+  # Database path for ChromaDB
+  db_path: "embeddings"
+  # Sentence transformer model name
+  model_name: "all-mpnet-base-v2"
+
+# Tools settings
+tools:
+  # Search and RAG tool settings
+  search:
+    # Default number of results to return
+    default_results: 5
+    # Maximum number of results allowed
+    max_results: 50
+  
+  rag:
+    # Default number of results to return
+    default_results: 5
+    # Maximum number of results allowed
+    max_results: 20
+    # Maximum characters to show in chapter preview
+    preview_chars: 10000 

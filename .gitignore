@@ -1,0 +1,39 @@
+
+# Ignore lecture build artifacts (but keep PDFs)
+lectures/*/output/*
+!lectures/*/output/*.pdf
+
+# Ignore all PDF files in bib folder
+bib/**/*.pdf
+
+# Ignore HTML snapshots
+bib/**/*.html
+
+# Ignore Zotero sync log
+bib/.sync_log.txt
+
+# ignore embeddings
+embeddings/
+
+# Ignore python env
+.venv/
+
+# ignore chapters and extracted figures
+bib/*/chapters/
+bib/*/figures/
+
+.secrets
+*.out
+
+# Ignore cloned experiment repos (contents only, keep the folder)
+experiments/**
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Playwright browser profile for Colab testing
+.cache/
