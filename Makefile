@@ -19,4 +19,16 @@ update-links:
 test:
 	uv run pytest tests/ -v
 
-.PHONY: slides clean update-links test $(LECTURES)
+site-data:
+	uv run python scripts/tools/build_site.py $(LECTURES)
+
+site:
+	rm -rf _site && mkdir -p _site/bib
+	cp -r site/. _site/
+	for l in $(LECTURES); do cp lectures/$$l/output/main.pdf _site/$$l.pdf; done
+	rsync -a --include='*/' --include='*_fulltext.md' --include='figures/*.png' --exclude='*' --prune-empty-dirs bib/ _site/bib/
+
+serve: site
+	cd _site && python3 -m http.server 8000
+
+.PHONY: slides clean update-links test site-data site serve $(LECTURES)

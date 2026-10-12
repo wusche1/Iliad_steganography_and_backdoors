@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Steganography & Backdoors Slides</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2323373b'/><circle cx='16' cy='16' r='7' fill='none' stroke='%23eb811b' stroke-width='3'/></svg>">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<main>
+  <section id="viewer">
+    <header>
+      <h1>Steganography & Backdoors</h1>
+      <select id="lecture" aria-label="Lecture"></select>
+      <select id="outline" aria-label="Jump to slide"></select>
+      <div class="nav">
+        <button id="prev" aria-label="Previous slide">‹</button>
+        <span id="counter"></span>
+        <button id="next" aria-label="Next slide">›</button>
+      </div>
+    </header>
+    <div id="stage">
+      <div id="slide">
+        <canvas id="canvas"></canvas>
+        <div id="overlay"><div id="hl"></div><div id="sel"></div></div>
+      </div>
+    </div>
+    <footer>
+      <span class="hint">Click any element on the slide, or drag a box, to attach it to your question.</span>
+      <button id="attach-slide">Ask about this slide</button>
+    </footer>
+  </section>
+
+  <aside id="chat">
+    <header>
+      <h2>Ask Claude</h2>
+      <select id="model" aria-label="Model">
+        <option value="claude-opus-5-5">Opus 5.5</option>
+        <option value="claude-sonnet-5-5">Sonnet 5.5</option>
+        <option value="claude-haiku-5-5">Haiku 5.5</option>
+      </select>
+      <button id="new-chat" title="Start a new conversation">New chat</button>
+    </header>
+    <div id="messages">
+      <div class="empty">
+        <p>Claude can see every slide (with its LaTeX source and speaker notes) and can search and read all papers in the course literature.</p>
+        <p>Point at something on a slide and ask about it.</p>
+      </div>
+    </div>
+    <form id="keyform" hidden>
+      <p>No API key found. Use the course link (it ends in <code>#key=…</code>) or paste a key:</p>
+      <input id="keyinput" type="password" placeholder="sk-ant-…" autocomplete="off">
+      <button>Save key</button>
+    </form>
+    <form id="composer">
+      <div id="chips"></div>
+      <div class="row">
+        <textarea id="input" rows="2" placeholder="Ask a question…"></textarea>
+        <button id="send" aria-label="Send">↑</button>
+      </div>
+    </form>
+  </aside>
+</main>
+</body>
+</html>

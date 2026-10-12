@@ -37,3 +37,6 @@ __pycache__/
 
 # Playwright browser profile for Colab testing
 .cache/
+
+# Assembled website
+_site/

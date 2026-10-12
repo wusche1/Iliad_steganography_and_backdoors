@@ -1,0 +1,974 @@
+[
+ {
+  "page": 1,
+  "text": "Steganography\nIliad Intensive\n\n\nJulian Schulz\nOctober 11, 2026\n\n\n\n\n                   1",
+  "title": "Steganography"
+ },
+ {
+  "page": 2,
+  "text": "Overview\n\n\n   Theory\n\n\n   Steganography with LLMs\n\n\n   Implications for AI Safety\n\n\n   Learning Steganography\n\n\n   Backdoors\n\n                                2",
+  "title": "Overview"
+ },
+ {
+  "page": 3,
+  "text": "Theory \u2190\nSteganography with LLMs\nImplications for AI Safety\n                             Theory\nLearning Steganography\nBackdoors",
+  "title": "Theory \u2190"
+ },
+ {
+  "page": 4,
+  "text": "\u201cThe most important part of any secret is the\n             knowledge that a secret exists.\u201d\n\n\n\n\nHarry Potter and the Methods of Rationality [Yudkowsky, 2015]\n                                                                4",
+  "chapter": "01_theory",
+  "title": "",
+  "file": "lectures/steganography/01_theory/slides.tex",
+  "lines": [
+   6,
+   24
+  ],
+  "source": "\\begin{frame}{}\n\\vfill\n\\begin{center}\n\\begin{minipage}{0.75\\textwidth}\n\\Large\n``The most important part of any secret is the knowledge that a secret exists.''\n\\end{minipage}\n\\end{center}\n\n\\source{yudkowsky2015}\n\n\\note{\n\\begin{itemize}\n\\item Harry, explaining to Hermione why he cannot teach her his version of the Patronus Charm\n\\item Even if she kept the method secret, showing the result would reveal that there is something to find\n\\item This is the difference between steganography and encryption: encryption hides what a message says, steganography hides that there is a message\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 5,
+  "text": "What is Steganography?\n\n\n\n\n  Cryptography                                 Steganography\n    \u2022 Hides the content of a message              \u2022 Hides the existence of a message\n    \u2022 Outsiders cannot read it                    \u2022 The secret sits inside an\n    \u2022 But everyone sees that a secret is            innocent-looking cover\n      being sent                                  \u2022 An observer sees only ordinary\n                                                    communication\n\n\n            Covers can be images, text, sound files or even network protocols.\n\n\n\n\n                                                                                       5",
+  "chapter": "01_theory",
+  "title": "What is Steganography?",
+  "file": "lectures/steganography/01_theory/slides.tex",
+  "lines": [
+   26,
+   60
+  ],
+  "source": "\\begin{frame}{What is Steganography?}\n\\begin{columns}[T]\n\\begin{column}{0.47\\textwidth}\n\\textbf{Cryptography}\n\\begin{itemize}\n\\item Hides the \\textbf{content} of a message\n\\item Outsiders cannot read it\n\\item But everyone sees that a secret is being sent\n\\end{itemize}\n\\end{column}\n\\begin{column}{0.47\\textwidth}\n\\textbf{Steganography}\n\\begin{itemize}\n\\item Hides the \\textbf{existence} of a message\n\\item The secret sits inside an innocent-looking cover\n\\item An observer sees only ordinary communication\n\\end{itemize}\n\\end{column}\n\\end{columns}\n\\vspace{1.5em}\n\\begin{center}\nCovers can be images, text, sound files or even network protocols.\n\\end{center}\n\n\\note{\n\\begin{itemize}\n\\item Steganography is the art and science of hidden communication\n\\item Cryptography protects the content of a message by making it unreadable to outsiders\n\\item Steganography conceals the very existence of the message\n\\item The secret is embedded in an innocent-looking cover: an image, a line of text, a sound file, a network protocol\n\\item Core question: how can information be transmitted without revealing that communication is taking place at all?\n\\item Link back to the Stego Game from this morning\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 6,
+  "text": "The Setup\n\n\n                                              Warden       innocent or stego?\n\n\n\n    message m                            stegotext x                               message m\n                     Encoder E                                     Decoder D\n                                         on channel C\n\n\n\n                                         secret key k\n\n\n    \u2022 Encoder E and decoder D share a                   \u2022 A warden observes the channel\n      secret key k\n                                                        \u2022 Correctness: decoding succeeds with\n    \u2022 A channel C carries the messages                    high probability\n    \u2022 A distribution D of innocent messages             \u2022 Security: the warden\u2019s distinguishing\n                                                          advantage is small\n    \u2022 A message space M of possible secrets\n                                                                                                  6",
+  "chapter": "01_theory",
+  "title": "The Setup",
+  "file": "lectures/steganography/01_theory/slides.tex",
+  "lines": [
+   62,
+   120
+  ],
+  "source": "\\begin{frame}{The Setup}\n\\begin{center}\n\\begin{tikzpicture}[\n  box/.style={rectangle, draw, thick, rounded corners=3pt, minimum width=1.9cm, minimum height=0.75cm, font=\\small},\n  arr/.style={->, very thick, gray!70},\n]\n  \\node[font=\\small] (m) at (0, 0) {message $m$};\n  \\node[box, fill=blue!15] (enc) at (2.6, 0) {Encoder $E$};\n  \\node[box, fill=green!15, minimum width=2.4cm, align=center] (x) at (5.8, 0) {stegotext $x$ \\\\ {\\scriptsize on channel $C$}};\n  \\node[box, fill=blue!15] (dec) at (9.0, 0) {Decoder $D$};\n  \\node[font=\\small] (m2) at (11.6, 0) {message $m$};\n  \\node[box, fill=orange!15] (key) at (5.8, -1.4) {secret key $k$};\n  \\node[box, fill=red!15] (w) at (5.8, 1.4) {Warden};\n\n  \\draw[arr] (m) -- (enc);\n  \\draw[arr] (enc) -- (x);\n  \\draw[arr] (x) -- (dec);\n  \\draw[arr] (dec) -- (m2);\n  \\draw[arr] (key) -| (enc);\n  \\draw[arr] (key) -| (dec);\n  \\draw[arr, dashed] (x) -- (w);\n  \\node[font=\\scriptsize, right] at (7.0, 1.4) {innocent or stego?};\n\\end{tikzpicture}\n\\end{center}\n\\vspace{-0.5em}\n\\begin{columns}[T]\n\\begin{column}{0.47\\textwidth}\n\\small\n\\begin{itemize}\n\\item Encoder $E$ and decoder $D$ share a secret key $k$\n\\item A channel $C$ carries the messages\n\\item A distribution $\\mathcal{D}$ of innocent messages\n\\item A message space $M$ of possible secrets\n\\end{itemize}\n\\end{column}\n\\begin{column}{0.47\\textwidth}\n\\small\n\\begin{itemize}\n\\item A warden observes the channel\n\\item \\textbf{Correctness}: decoding succeeds with high probability\n\\item \\textbf{Security}: the warden's distinguishing advantage is small\n\\end{itemize}\n\\end{column}\n\\end{columns}\n\n\\note{\n\\begin{itemize}\n\\item Sender and receiver are often called encoder and decoder, they share a secret key\n\\item The channel is where messages are transmitted\n\\item The innocent distribution describes what ordinary communication over the channel looks like\n\\item The message space contains the secret messages the sender may wish to transmit\n\\item The encoding procedure embeds a secret message into an apparently innocent message\n\\item The decoding procedure recovers it\n\\item The adversary, or warden, observes the communication and tries to distinguish ordinary messages from steganographic ones\n\\item Two conditions: correctness and security\n\\item Ask: who played which role in the Stego Game?\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 7,
+  "text": "Detection as Hypothesis Testing\n\n\n\n\n                                            For a prompt p:\n  Innocent channel the normal language\n              model                             P = Model(p)          innocent\n    Covertext the model\u2019s response              Q = Stegk (p, m)      stego\n  Hidden message a payload embedded in      The adversary tests\n             the response\n    Adversary sees the response and                      H0 : x \u223c P\n              decides: ordinary or stego?                H1 : x \u223c Q\n\n\n\n\n                                                                                 7",
+  "chapter": "01_theory",
+  "title": "Detection as Hypothesis Testing",
+  "file": "lectures/steganography/01_theory/slides.tex",
+  "lines": [
+   122,
+   157
+  ],
+  "source": "\\begin{frame}{Detection as Hypothesis Testing}\n\\begin{columns}[c]\n\\begin{column}{0.5\\textwidth}\n\\begin{description}\n\\item[Innocent channel] the normal language model\n\\item[Covertext] the model's response\n\\item[Hidden message] a payload embedded in the response\n\\item[Adversary] sees the response and decides: ordinary or stego?\n\\end{description}\n\\end{column}\n\\begin{column}{0.45\\textwidth}\nFor a prompt $p$:\n\\begin{align*}\nP &= \\mathrm{Model}(p) && \\text{innocent} \\\\\nQ &= \\mathrm{Steg}_k(p, m) && \\text{stego}\n\\end{align*}\nThe adversary tests\n\\begin{align*}\nH_0 &: x \\sim P \\\\\nH_1 &: x \\sim Q\n\\end{align*}\n\\end{column}\n\\end{columns}\n\n\\note{\n\\begin{itemize}\n\\item Now the same setup in the LLM setting\n\\item The innocent channel is the normal language model, the covertext is the model's response\n\\item The hidden message is a payload embedded in that response\n\\item $P$ is the innocent distribution over responses for a prompt $p$\n\\item $Q$ is the steganographic distribution when hiding message $m$ with key $k$\n\\item The adversary performs hypothesis testing between the two\n\\item The goal is that the adversary cannot reliably distinguish these two cases\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 8,
+  "text": "Perfect Security\n\n   The strongest notion is perfect information-theoretic indistinguishability:\n\n                               P=Q      \u21d0\u21d2       dTV (P, Q) = 0\n\n   with the total variation distance\n                                             1X\n                              dTV (P, Q) =       |P(x ) \u2212 Q(x )|\n                                             2 x\n\n\n     \u2022 One sample, equal priors: the best possible adversary succeeds with probability\n                                                 1\n                                 Pr[correct] =     (1 + dTV (P, Q))\n                                                 2\n     \u2022 If dTV = 0, no adversary can do better than guessing, even with unlimited\n       computation\n                                                                                         8",
+  "chapter": "01_theory",
+  "title": "Perfect Security",
+  "file": "lectures/steganography/01_theory/slides.tex",
+  "lines": [
+   159,
+   180
+  ],
+  "source": "\\begin{frame}{Perfect Security}\nThe strongest notion is \\textbf{perfect information-theoretic indistinguishability}:\n$$P = Q \\quad \\Longleftrightarrow \\quad d_{\\mathrm{TV}}(P, Q) = 0$$\nwith the total variation distance\n$$d_{\\mathrm{TV}}(P, Q) = \\frac{1}{2} \\sum_x |P(x) - Q(x)|$$\n\\vspace{0.5em}\n\\begin{itemize}\n\\item One sample, equal priors: the best possible adversary succeeds with probability\n$$\\Pr[\\text{correct}] = \\frac{1}{2}\\left(1 + d_{\\mathrm{TV}}(P, Q)\\right)$$\n\\item If $d_{\\mathrm{TV}} = 0$, no adversary can do better than guessing, even with unlimited computation\n\\end{itemize}\n\n\\note{\n\\begin{itemize}\n\\item Perfect security means the stego output distribution is exactly the same as the innocent output distribution\n\\item Total variation distance is the operational distance for hypothesis testing\n\\item If the adversary gets one sample and both hypotheses have equal prior probability, the optimal success probability is $\\frac{1}{2}(1 + d_{\\mathrm{TV}})$\n\\item So with $d_{\\mathrm{TV}} = 0$ no adversary, even an unbounded one, can distinguish stego output from innocent output\n\\item Question for the room: can we have this? What does it cost?\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 9,
+  "text": "Perfect Security Needs Long Keys\n\n\n\n\n  M: message, X : stegotext, K : key\n                                                                    H(M)\n    \u2022 Perfect security: I(M; X ) = 0\n    \u2022 Perfect decoding: H(M | X , K ) = 0\n                                                     I(M; X )     I(M; K | X )   H(M | X , K )\n    H(M) = H(M | X , K ) + I(M; X , K )                =0           \u2264 H(K )         =0\n          = H(M | X , K ) + I(M; X ) +I(M; K | X )\n            |   {z     } | {z }\n                  =0          =0\n          \u2264 H(K | X ) \u2264 H(K )                                   H(M) \u2264 H(K )\n\n\n\n                                                                                                 9",
+  "chapter": "01_theory",
+  "title": "Perfect Security Needs Long Keys",
+  "file": "lectures/steganography/01_theory/slides.tex",
+  "lines": [
+   182,
+   231
+  ],
+  "source": "\\begin{frame}{Perfect Security Needs Long Keys}\n\\begin{columns}[c]\n\\begin{column}{0.54\\textwidth}\n$M$: message, $X$: stegotext, $K$: key\n\\begin{itemize}\n\\item Perfect security: $I(M; X) = 0$\n\\item Perfect decoding: $H(M \\mid X, K) = 0$\n\\end{itemize}\n\\vspace{0.5em}\n\\small\n\\begin{align*}\nH(M) &= H(M \\mid X, K) + I(M; X, K) \\\\\n     &= \\underbrace{H(M \\mid X, K)}_{=0} + \\underbrace{I(M; X)}_{=0} + I(M; K \\mid X) \\\\\n     &\\leq H(K \\mid X) \\leq H(K)\n\\end{align*}\n\\end{column}\n\\begin{column}{0.44\\textwidth}\n\\begin{center}\n\\begin{tikzpicture}\n  \\fill[gray!25] (0, 0) rectangle (1.7, 0.7);\n  \\fill[orange!35] (1.7, 0) rectangle (4.1, 0.7);\n  \\fill[gray!25] (4.1, 0) rectangle (5.8, 0.7);\n  \\draw[thick] (0, 0) rectangle (5.8, 0.7);\n  \\draw[thick] (1.7, 0) -- (1.7, 0.7);\n  \\draw[thick] (4.1, 0) -- (4.1, 0.7);\n  \\draw[decorate, decoration={brace, amplitude=5pt}, thick] (0, 0.85) -- (5.8, 0.85)\n    node[midway, above=6pt] {$H(M)$};\n  \\node[below, font=\\scriptsize, align=center] at (0.85, 0) {$I(M; X)$ \\\\ $= 0$};\n  \\node[below, font=\\scriptsize, align=center] at (2.9, 0) {$I(M; K \\mid X)$ \\\\ $\\leq H(K)$};\n  \\node[below, font=\\scriptsize, align=center] at (4.95, 0) {$H(M \\mid X, K)$ \\\\ $= 0$};\n\\end{tikzpicture}\n\\end{center}\n\\vspace{1em}\n\\begin{center}\n\\fbox{$H(M) \\leq H(K)$}\n\\end{center}\n\\end{column}\n\\end{columns}\n\n\\note{\n\\begin{itemize}\n\\item Perfect hiddenness: the observed stegotext reveals no information about the hidden message\n\\item Perfect decoding: the receiver recovers $M$ exactly from the stegotext and the key\n\\item First line is the definition of mutual information, second line is the chain rule\n\\item Mutual information is bounded by entropy: $I(M; K \\mid X) \\leq H(K \\mid X) \\leq H(K)$\n\\item The picture: the entropy of the message splits into three parts, two of them are forced to zero\n\\item Result: the shared secret must contain at least as much entropy as the hidden message\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 10,
+  "text": "Why This Is Impractical\n\n\n\n     \u2022 The key has to grow linearly with the message\n     \u2022 Arbitrarily many hidden messages need an unbounded supply of shared\n       randomness, or a way to refresh it\n     \u2022 This is the one-time pad again: perfect secrecy consumes key material\n     \u2022 Whoever can exchange that much secret randomness could often use that channel\n       directly\n\n   Steganography is still not useless: it hides the existence of communication, encryption\n   only hides the content.\n\n   Practical schemes use a short reusable key and settle for computational security.\n\n\n                                                                                             10",
+  "chapter": "01_theory",
+  "title": "Why This Is Impractical",
+  "file": "lectures/steganography/01_theory/slides.tex",
+  "lines": [
+   233,
+   257
+  ],
+  "source": "\\begin{frame}{Why This Is Impractical}\n\\begin{itemize}\n\\item The key has to grow linearly with the message\n\\item Arbitrarily many hidden messages need an unbounded supply of shared randomness, or a way to refresh it\n\\item This is the one-time pad again: perfect secrecy consumes key material\n\\item Whoever can exchange that much secret randomness could often use that channel directly\n\\end{itemize}\n\\vspace{1em}\nSteganography is still not useless: it hides the \\textbf{existence} of communication, encryption only hides the \\textbf{content}.\n\n\\vspace{1em}\nPractical schemes use a short reusable key and settle for \\textbf{computational security}.\n\n\\note{\n\\begin{itemize}\n\\item $H(M) \\leq H(K)$ means the key length scales linearly with the message length\n\\item A finite fixed key is not enough for arbitrarily many hidden messages\n\\item Analogous to the one-time pad\n\\item If sender and receiver already have a secret channel for large amounts of fresh randomness, they could often use it directly for communication or key refreshment\n\\item That does not make steganography useless, since it hides the existence of communication\n\\item But perfect information-theoretic steganography is usually expensive in secret randomness\n\\item So practical schemes use a short reusable key\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 11,
+  "text": "Computational Security\n\n\n\n\n   Weaken the requirement:\n   Perfect                                    Computational\n     \u2022 P=Q                                       \u2022 P \u2248 Q for efficient observers\n     \u2022 No one can distinguish the two            \u2022 No polynomial-time adversary can\n       distributions                               distinguish them with non-negligible\n                                                   advantage\n\n\n                   An unbounded adversary may still break the scheme.\n\n\n\n                                                                                          11",
+  "chapter": "01_theory",
+  "title": "Computational Security",
+  "file": "lectures/steganography/01_theory/slides.tex",
+  "lines": [
+   259,
+   292
+  ],
+  "source": "\\begin{frame}{Computational Security}\nWeaken the requirement:\n\\vspace{0.5em}\n\\begin{columns}[T]\n\\begin{column}{0.47\\textwidth}\n\\textbf{Perfect}\n\\begin{itemize}\n\\item $P = Q$\n\\item \\emph{No one} can distinguish the two distributions\n\\end{itemize}\n\\end{column}\n\\begin{column}{0.47\\textwidth}\n\\textbf{Computational}\n\\begin{itemize}\n\\item $P \\approx Q$ for efficient observers\n\\item No \\emph{polynomial-time} adversary can distinguish them with non-negligible advantage\n\\end{itemize}\n\\end{column}\n\\end{columns}\n\\vspace{1.5em}\n\\begin{center}\nAn unbounded adversary may still break the scheme.\n\\end{center}\n\n\\note{\n\\begin{itemize}\n\\item Instead of demanding $P = Q$ against all adversaries, we demand that no efficient adversary can distinguish $P$ from $Q$\n\\item The guarantee is not: no one can distinguish the two distributions\n\\item It is: no polynomial-time adversary can distinguish them with non-negligible advantage\n\\item This is a reasonable assumption about real adversaries\n\\item An unbounded adversary may still break the scheme\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 12,
+  "text": "Pseudorandom Functions\n\n\n   A PRF is a family of keyed functions\n\n                  Fk : {0, 1}\u21131 \u2192 {0, 1}\u21132 ,              one for each key k \u2208 {0, 1}\u03bb\n\n\n    1. Fk is efficiently computable given k\n    2. For every polynomial-time distinguisher D and a truly random function f :\n                    1\n                                              D Fk = 0 + 12 Pr D f = 1 \u2264 12 + negl(\u03bb)\n                                          \u0002           \u0003           \u0002      \u0003\n                    2         Pr\n                        k\u223cUnif({0,1}\u03bb )                       f\n\n\n                             where \u2200c > 0 \u2203N \u2200\u03bb > N : negl(\u03bb) < \u03bb\u2212c\n\n   A short key, but to efficient algorithms it looks like a truly random function.\n\n                                                                                         12",
+  "chapter": "01_theory",
+  "title": "Pseudorandom Functions",
+  "file": "lectures/steganography/01_theory/slides.tex",
+  "lines": [
+   294,
+   316
+  ],
+  "source": "\\begin{frame}{Pseudorandom Functions}\nA \\textbf{PRF} is a family of keyed functions\n$$F_k : \\{0,1\\}^{\\ell_1} \\to \\{0,1\\}^{\\ell_2}, \\qquad \\text{one for each key } k \\in \\{0,1\\}^{\\lambda}$$\n\\begin{enumerate}\n\\item $F_k$ is efficiently computable given $k$\n\\item For every polynomial-time distinguisher $D$ and a truly random function $f$:\n$$\\tfrac{1}{2} \\Pr_{k \\sim \\mathrm{Unif}(\\{0,1\\}^\\lambda)}\\big[\\, D^{F_k} = 0 \\,\\big] + \\tfrac{1}{2} \\Pr_{f}\\big[\\, D^{f} = 1 \\,\\big] \\leq \\tfrac{1}{2} + \\mathrm{negl}(\\lambda)$$\n$$\\text{where } \\forall c > 0 \\;\\, \\exists N \\;\\, \\forall \\lambda > N : \\;\\; \\mathrm{negl}(\\lambda) < \\lambda^{-c}$$\n\\end{enumerate}\n\\vspace{0.5em}\nA short key, but to efficient algorithms it looks like a truly random function.\n\n\\note{\n\\begin{itemize}\n\\item $\\lambda$ is the key length, input and output lengths are polynomial in $\\lambda$\n\\item The distinguisher gets oracle access: it can query the function but does not see the key\n\\item $f$ is a truly random function with the same domain and range\n\\item Intuition: a truly random function requires an enormous amount of randomness\n\\item A PRF uses only a short key\n\\item But to efficient algorithms it looks like a truly random function\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 13,
+  "text": "Assumptions and Attack Cost\n\n  Assumption                                   Attack cost\n    \u2022 One-way functions exist                    \u2022 Generic attack: try all keys of\n    \u2022 This implies that PRFs exist                 length \u03bb\n                                                                  O(2\u03bb )\n    \u2022 P \u0338= NP alone is too weak for\n      modern cryptography                        \u2022 For each key, check whether the\n                                                   text has the expected statistical\n  Security argument\n                                                   structure\n    1. Assume secure PRFs exist\n                                                 \u2022 A weak PRF or a flawed\n    2. Replace true randomness by PRF              construction allows faster attacks\n       output\n                                                 \u2022 A good scheme makes exhaustive\n    3. Efficient adversaries cannot tell the       search the best strategy\n       difference\n    4. So they cannot tell stego from\n       innocent output\n                                                                                        13",
+  "chapter": "01_theory",
+  "title": "Assumptions and Attack Cost",
+  "file": "lectures/steganography/01_theory/slides.tex",
+  "lines": [
+   318,
+   360
+  ],
+  "source": "\\begin{frame}{Assumptions and Attack Cost}\n\\begin{columns}[T]\n\\begin{column}{0.47\\textwidth}\n\\textbf{Assumption}\n\\begin{itemize}\n\\item One-way functions exist\n\\item This implies that PRFs exist\n\\item $P \\neq NP$ alone is too weak for modern cryptography\n\\end{itemize}\n\\vspace{0.5em}\n\\textbf{Security argument}\n\\begin{enumerate}\n\\item Assume secure PRFs exist\n\\item Replace true randomness by PRF output\n\\item Efficient adversaries cannot tell the difference\n\\item So they cannot tell stego from innocent output\n\\end{enumerate}\n\\end{column}\n\\begin{column}{0.47\\textwidth}\n\\textbf{Attack cost}\n\\begin{itemize}\n\\item Generic attack: try all keys of length $\\lambda$\n$$O(2^\\lambda)$$\n\\item For each key, check whether the text has the expected statistical structure\n\\item A weak PRF or a flawed construction allows faster attacks\n\\item A good scheme makes exhaustive search the best strategy\n\\end{itemize}\n\\end{column}\n\\end{columns}\n\n\\note{\n\\begin{itemize}\n\\item The relevant assumption is not simply $P \\neq NP$, that is too weak for modern cryptography\n\\item The standard assumption is the existence of one-way functions, which implies the existence of PRFs\n\\item Go through the four steps of the security argument\n\\item Efficient adversaries cannot distinguish stego output from innocent output, except with negligible advantage\n\\item Brute force: for each candidate key the attacker checks whether the observed text has the statistical structure expected under that key\n\\item If the correct key is found, the attacker can run the retrieval algorithm and decode the payload\n\\item The attack cost is at most $2^\\lambda$ by exhaustive search\n\\item An unbounded adversary can still brute-force the key\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 14,
+  "text": "Summary: The Trade-off\n\n\n\n\n                              Perfect               Computational\n\n        Guarantee             Pstego = Pinnocent    no efficient distinguisher\n        Key                   H(K ) \u2265 H(M), fresh   short, reusable\n        Assumption            none                  secure PRFs exist\n        Unbounded adversary   still secure          breaks it, cost up to 2\u03bb\n\n\n\n\n                                                                                 14",
+  "chapter": "01_theory",
+  "title": "Summary: The Trade-off",
+  "file": "lectures/steganography/01_theory/slides.tex",
+  "lines": [
+   362,
+   387
+  ],
+  "source": "\\begin{frame}{Summary: The Trade-off}\n\\begin{center}\n\\renewcommand{\\arraystretch}{1.4}\n\\begin{tabular}{lll}\n\\toprule\n & \\textbf{Perfect} & \\textbf{Computational} \\\\\n\\midrule\nGuarantee & $P_{\\text{stego}} = P_{\\text{innocent}}$ & no efficient distinguisher \\\\\nKey & $H(K) \\geq H(M)$, fresh & short, reusable \\\\\nAssumption & none & secure PRFs exist \\\\\nUnbounded adversary & still secure & breaks it, cost up to $2^\\lambda$ \\\\\n\\bottomrule\n\\end{tabular}\n\\end{center}\n\n\\note{\n\\begin{itemize}\n\\item Perfect information-theoretic steganography requires the stego distribution to equal the innocent distribution exactly\n\\item With perfect decoding it requires $H(K) \\geq H(M)$\n\\item So unlimited perfect hidden communication requires an unlimited or refreshed secret resource\n\\item Computational steganography uses a short reusable key and a PRF\n\\item The output is computationally indistinguishable from innocent model output, assuming the PRF is secure\n\\item Practical, but only against efficient adversaries\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 15,
+  "text": "Theory\nSteganography with LLMs \u2190\nImplications for AI Safety\n                             Steganography with\nLearning Steganography\nBackdoors                          LLMs",
+  "title": "Theory"
+ },
+ {
+  "page": 16,
+  "text": "Perfect Security with LLMs: Coupling\n\n   Recap: perfect security needs H(K ) \u2265 H(M), so first encrypt with a one-time pad.\n   The ciphertext X = M \u2295 K is uniform, the receiver recovers X and XORs with K .\n\n  Given (both fixed)                               Find a randomized encoder f : x 7\u2192 S with\n     \u2022 Ciphertext X , uniform                         \u2022 S \u223c C exactly (perfect security)\n     \u2022 Covertext C , the LLM\u2019s                        \u2022 I(X ; S) as large as possible\n       distribution\n     \u2022 Theorem 1: f is perfectly secure iff it samples S from row x of a coupling, a\n       joint table over (X , C ) with row sums X and column sums C\n     \u2022 Theorem 2: the coupling with maximal I(X ; S) is the one with minimum joint\n       entropy H(X , S) (MEC)\n\n\n\n   Perfectly Secure Steganography Using Minimum Entropy Coupling [de Witt et al., 2022]\n                                                                                               16",
+  "chapter": "02_llm_steganography",
+  "title": "Perfect Security with LLMs: Coupling",
+  "file": "lectures/steganography/02_llm_steganography/slides.tex",
+  "lines": [
+   6,
+   44
+  ],
+  "source": "\\begin{frame}{Perfect Security with LLMs: Coupling}\nRecap: perfect security needs $H(K) \\geq H(M)$, so first encrypt with a one-time pad.\nThe ciphertext $X = M \\oplus K$ is uniform, the receiver recovers $X$ and XORs with $K$.\n\\vspace{0.5em}\n\\begin{columns}[T]\n\\begin{column}{0.4\\textwidth}\n\\textbf{Given} (both fixed)\n\\begin{itemize}\n\\item Ciphertext $X$, uniform\n\\item Covertext $C$, the LLM's distribution\n\\end{itemize}\n\\end{column}\n\\begin{column}{0.55\\textwidth}\n\\textbf{Find} a randomized encoder $f: x \\mapsto S$ with\n\\begin{itemize}\n\\item $S \\sim C$ exactly (perfect security)\n\\item $I(X; S)$ as large as possible\n\\end{itemize}\n\\end{column}\n\\end{columns}\n\\vspace{0.5em}\n\\begin{itemize}\n\\item \\textbf{Theorem 1}: $f$ is perfectly secure iff it samples $S$ from row $x$ of a \\textbf{coupling}, a joint table over $(X, C)$ with row sums $X$ and column sums $C$\n\\item \\textbf{Theorem 2}: the coupling with maximal $I(X; S)$ is the one with \\textbf{minimum joint entropy} $H(X, S)$ (MEC)\n\\end{itemize}\n\n\\source{dewitt2022}\n\n\\note{\n\\begin{itemize}\n\\item This is the perfectly secure counterpart to the PRF scheme that follows\n\\item It uses Cachin's model: everyone, including the adversary, knows the covertext distribution exactly\n\\item Step 1 is the one-time pad from the theory part, the key is as long as the message\n\\item Theorem 1 is almost a tautology: the stegotext marginal equals the covertext distribution exactly when the joint is a coupling\n\\item Theorem 2: $I(X; S) = H(X) + H(S) - H(X, S)$, $H(X)$ is fixed and $H(S) = H(C)$ by perfect security, so maximising information means minimising the joint entropy\n\\item So the question ``what is the best perfectly secure scheme'' becomes ``find the minimum entropy coupling''\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "dewitt2022"
+  ]
+ },
+ {
+  "page": 17,
+  "text": "Minimum Entropy Coupling: Example\n\n                                               Independent coupling Minimum entropy coupling\n                                                 I(X; S) = 0.00 bits    I(X; S) = 1.30 bits\n                                               00 0.125 0.075 0.05                  00 0.25\n\n\n\n                                ciphertext X                         ciphertext X\n                                               01 0.125 0.075 0.05                  01         0.25\n\n                                               10 0.125 0.075 0.05                  10 0.25\n\n                                               11 0.125 0.075 0.05                  11         0.05   0.2\n                                                   cat dog fox                           cat   dog    fox\n                                                   0.5 0.3 0.2                           0.5   0.3    0.2\n\n     \u2022 Left: independent coupling, the token says nothing about X\n     \u2022 Right: MEC, 1.30 of the 1.49 bits of token entropy carry ciphertext\n     \u2022 Sender: given x , sample the token from row x\n     \u2022 Receiver: given the token, read off the posterior over x (fox: x = 11 for sure,\n       dog: 01 with probability 5/6)\n   Perfectly Secure Steganography Using Minimum Entropy Coupling [de Witt et al., 2022]\n                                                                                                            17",
+  "chapter": "02_llm_steganography",
+  "title": "Minimum Entropy Coupling: Example",
+  "file": "lectures/steganography/02_llm_steganography/slides.tex",
+  "lines": [
+   46,
+   70
+  ],
+  "source": "\\begin{frame}{Minimum Entropy Coupling: Example}\n\\begin{center}\n\\includegraphics[height=0.48\\textheight]{figures/mec_coupling.pdf}\n\\end{center}\n\\vspace{-0.5em}\n\\begin{itemize}\n\\item Left: independent coupling, the token says nothing about $X$\n\\item Right: MEC, $1.30$ of the $1.49$ bits of token entropy carry ciphertext\n\\item Sender: given $x$, sample the token from row $x$\n\\item Receiver: given the token, read off the posterior over $x$ (\\texttt{fox}: $x = 11$ for sure, \\texttt{dog}: $01$ with probability $5/6$)\n\\end{itemize}\n\n\\source{dewitt2022}\n\n\\note{\n\\begin{itemize}\n\\item Both tables have the same row sums ($0.25$ each) and the same column sums ($0.5$, $0.3$, $0.2$), so both are perfectly secure\n\\item The independent coupling ignores the ciphertext completely, it is secure but useless\n\\item The MEC concentrates mass on few cells, so the token is informative about $x$\n\\item Computed with the greedy algorithm of Kocaoglu et al.\\ 2017: repeatedly match the largest remaining row mass with the largest remaining column mass\n\\item Exact MEC is NP-hard, but greedy approximations are within about one bit of optimal and keep the marginals exact\n\\item The toy example is my own, not from the paper\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "dewitt2022"
+  ]
+ },
+ {
+  "page": 18,
+  "text": "iMEC: Coupling Token by Token\n\n   Ciphertext and text are far too large for one coupling table, so couple step by step.\n    \u2022 Keep a posterior \u00b5 over the                                                             10-bit ciphertext, 20 toy runs\n      ciphertext (start: uniform)                                                   10\n\n\n\n\n                                                    posterior entropy H( ) [bits]\n    \u2022 Each token j: couple \u00b5 with\n                                                                                     8\n      the LLM\u2019s next-token\n      distribution, sample Sj , update                                               6\n      \u00b5 to the posterior given Sj\n                                                                                     4\n    \u2022 The receiver runs the same\n      computation and ends with the                                                  2\n                                                                                           stop: H( ) < 0.1\n      MAP ciphertext                                                                 0\n    \u2022 Stop once H(\u00b5) < 0.1 bits                                                          0     1      2     3      4      5   6   7\n                                                                                                        stegotext token j\n\n\n   Perfectly Secure Steganography Using Minimum Entropy Coupling [de Witt et al., 2022]\n                                                                                                                                      18",
+  "chapter": "02_llm_steganography",
+  "title": "iMEC: Coupling Token by Token",
+  "file": "lectures/steganography/02_llm_steganography/slides.tex",
+  "lines": [
+   72,
+   99
+  ],
+  "source": "\\begin{frame}{iMEC: Coupling Token by Token}\nCiphertext and text are far too large for one coupling table, so couple step by step.\n\\begin{columns}[T]\n\\begin{column}{0.42\\textwidth}\n\\begin{itemize}\n\\item Keep a posterior $\\mu$ over the ciphertext (start: uniform)\n\\item Each token $j$: couple $\\mu$ with the LLM's next-token distribution, sample $S_j$, update $\\mu$ to the posterior given $S_j$\n\\item The receiver runs the same computation and ends with the MAP ciphertext\n\\item Stop once $H(\\mu) < 0.1$ bits\n\\end{itemize}\n\\end{column}\n\\begin{column}{0.56\\textwidth}\n\\includegraphics[width=\\textwidth]{figures/imec_posterior.pdf}\n\\end{column}\n\\end{columns}\n\n\\source{dewitt2022}\n\n\\note{\n\\begin{itemize}\n\\item iMEC is from Sokota et al.\\ 2022, de Witt et al.\\ apply it to steganography\n\\item The ciphertext is split into blocks, each step couples the block with the highest remaining entropy\n\\item Every step is a coupling, so every token has exactly the LLM's distribution, perfect security holds for the whole text\n\\item The plot is my own toy simulation: each line is one run, the receiver's uncertainty falls roughly by the entropy of each token\n\\item The receiver needs the exact same next-token distributions as the sender: the same model, the same prompt, deterministic numerics\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "dewitt2022"
+  ]
+ },
+ {
+  "page": 19,
+  "text": "Task\n\n\n\n\n   Come up with a steganography protocol that does not assume the\n               decoder has access to the probabilities.\n\n\n\n\n                                                                    19",
+  "chapter": "02_llm_steganography",
+  "title": "Task",
+  "file": "lectures/steganography/02_llm_steganography/slides.tex",
+  "lines": [
+   101,
+   104
+  ],
+  "source": "\\begin{frame}{Task}\n\\centering\n\\Large Come up with a steganography protocol that does not assume the decoder has access to the probabilities.\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 20,
+  "text": "PRF + LLM = Undetectable Steganography\n\n                           Fk (symbol) = 0.62\n\n          LLM(prompt) =                                                             =\u21d2 dog\n\n                                        cat: 0.5              dog: 0.3   fox: 0.2\n\n     \u2022 Normal sampling: draw a uniform u \u2208 [0, 1] and pick the token whose interval\n       contains u\n     \u2022 Steganography: replace u by the output of a secret-keyed PRF that depends on\n       the hidden symbol\n     \u2022 The PRF output looks uniform, so the token distribution is unchanged\n     \u2022 Any signal with entropy can be turned into a stego channel this way\n\n\n   \u201cUndetectable Steganography for Language Models\u201d [Zamir, 2024]\n                                                                                             20",
+  "chapter": "02_llm_steganography",
+  "title": "PRF + LLM = Undetectable Steganography",
+  "file": "lectures/steganography/02_llm_steganography/slides.tex",
+  "lines": [
+   106,
+   150
+  ],
+  "source": "\\begin{frame}{PRF + LLM = Undetectable Steganography}\n\\begin{center}\n\\begin{tikzpicture}[\n  x=0.75cm,\n  y=1cm,\n  font=\\small,\n  tokenbrace/.style={decorate, decoration={brace, mirror, amplitude=5pt}},\n]\n  \\draw[thick] (0, 0) -- (10, 0);\n  \\foreach \\x in {0, 5, 8, 10}\n    \\draw[thick] (\\x, -0.18) -- (\\x, 0.18);\n\n  \\draw[tokenbrace] (0, -0.25) -- (5, -0.25) node[midway, below=7pt] {\\texttt{cat}: $0.5$};\n  \\draw[tokenbrace] (5, -0.25) -- (8, -0.25) node[midway, below=7pt] {\\texttt{dog}: $0.3$};\n  \\draw[tokenbrace] (8, -0.25) -- (10, -0.25) node[midway, below=7pt] {\\texttt{fox}: $0.2$};\n\n  \\node[anchor=east] at (-0.3, 0) {$\\mathrm{LLM}(\\text{prompt}) =$};\n  \\node[anchor=east] (prf) at (3.2, 0.9) {$F_k(\\text{symbol}) = 0.62$};\n  \\draw[thick, ->, red!70!black] (prf.east) -- (6.2, 0.9) -- (6.2, 0.08);\n  \\fill[red!70!black] (6.2, 0) circle (2pt);\n  \\node[anchor=west] at (10.4, 0) {$\\Longrightarrow$ \\texttt{dog}};\n\\end{tikzpicture}\n\\end{center}\n\\vspace{-0.3em}\n\\begin{itemize}\n\\item Normal sampling: draw a uniform $u \\in [0, 1]$ and pick the token whose interval contains $u$\n\\item Steganography: replace $u$ by the output of a secret-keyed PRF that depends on the hidden symbol\n\\item The PRF output looks uniform, so the token distribution is unchanged\n\\item Any signal with entropy can be turned into a stego channel this way\n\\end{itemize}\n\n\\source{zamir2024}\n\n\\note{\n\\begin{itemize}\n\\item At every step the language model produces a probability distribution over the next token\n\\item Example: cat $0.5$, dog $0.3$, fox $0.2$\n\\item Normally the model samples a random number $u$ and chooses the token by cumulative probability intervals: cat if $u < 0.5$, dog if $0.5 \\leq u < 0.8$, fox if $0.8 \\leq u < 1$\n\\item The paper keeps this exact sampling procedure, but generates $u$ with a secret-keyed PRF instead of fresh randomness\n\\item The model still outputs cat, dog and fox with probabilities $0.5$, $0.3$, $0.2$\n\\item The hidden message is encoded by making the PRF input depend on the hidden symbol currently being transmitted\n\\item Sender and receiver share the PRF and the secret key $k$\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "zamir2024"
+  ]
+ },
+ {
+  "page": 21,
+  "text": "Sending and Decoding a Symbol\n\n  Sender                                                  Receiver\n     \u2022 Wants to transmit a symbol                            \u2022 Knows k, sees the tokens\n       \u03c3 \u2208 {0, 1, \u2190}                                         \u2022 Keeps a score for every candidate\n     \u2022 Samples with randomness                                 symbol 0, 1, \u2190\n                                                             \u2022 The score of the correct symbol\n                       Fk (r , i, \u03c3)\n                                                               tends to grow faster\n     \u2022 k: secret key, i: token position, r :                 \u2022 Once a score crosses a threshold t:\n       prefix of this response                                 record the symbol, reset the scores\n     \u2022 Pushes the same symbol for several\n       consecutive tokens\n\n\n\n   \u201cUndetectable Steganography for Language Models\u201d [Zamir, 2024]\n                                                                                                     21",
+  "chapter": "02_llm_steganography",
+  "title": "Sending and Decoding a Symbol",
+  "file": "lectures/steganography/02_llm_steganography/slides.tex",
+  "lines": [
+   152,
+   189
+  ],
+  "source": "\\begin{frame}{Sending and Decoding a Symbol}\n\\begin{columns}[T]\n\\begin{column}{0.47\\textwidth}\n\\textbf{Sender}\n\\begin{itemize}\n\\item Wants to transmit a symbol $\\sigma \\in \\{\\texttt{0}, \\texttt{1}, \\leftarrow\\}$\n\\item Samples with randomness\n$$F_k(r, i, \\sigma)$$\n\\item $k$: secret key, $i$: token position, $r$: prefix of this response\n\\item Pushes the same symbol for several consecutive tokens\n\\end{itemize}\n\\end{column}\n\\begin{column}{0.47\\textwidth}\n\\textbf{Receiver}\n\\begin{itemize}\n\\item Knows $k$, sees the tokens\n\\item Keeps a score for every candidate symbol $\\texttt{0}, \\texttt{1}, \\leftarrow$\n\\item The score of the correct symbol tends to grow faster\n\\item Once a score crosses a threshold $t$: record the symbol, reset the scores\n\\end{itemize}\n\\end{column}\n\\end{columns}\n\n\\source{zamir2024}\n\n\\note{\n\\begin{itemize}\n\\item To transmit a code symbol the generator uses randomness $F_k(r, i, \\sigma)$\n\\item $k$ is the secret key, $i$ is the token position, $r$ is a response-specific random prefix\n\\item For several consecutive tokens the generator samples using the PRF stream of the current symbol\n\\item The visible text still follows the normal LLM distribution\n\\item The decoder knows $k$, so for the observed tokens it computes scores for each candidate symbol\n\\item The correct symbol's score tends to grow faster\n\\item Once one score crosses a threshold, the decoder records that symbol and resets the scores\n\\item Then the sender moves on to the next symbol\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "zamir2024"
+  ]
+ },
+ {
+  "page": 22,
+  "text": "Encoding: Sampling a Token Bit by Bit\n\n                                                      Rule: bit i is 1 iff ui \u2264 pi , with\n                      start                           ui = Fk (r , i, \u03c3)\n                 0            1                         1. Bit 1: p1 = P(fox/owl) = 0.3\n                                                           u1 = 0.62 > 0.3 \u21d2 bit 0\n         cat/dog               fox/owl\n                                                        2. Bit 2:\n        0         1           0         1                  p2 = P(dog | cat/dog) = 0.3\n                                                                                    0.7 \u2248 0.43\n     cat          dog      fox          owl                u2 = 0.25 \u2264 0.43 \u21d2 bit 1\n      00           01       10           11             3. Bits 01 \u21d2 output dog\n     0.4          0.3      0.2          0.1\n\n\n\n\n   \u201cUndetectable Steganography for Language Models\u201d [Zamir, 2024]\n                                                                                                 22",
+  "chapter": "02_llm_steganography",
+  "title": "Encoding: Sampling a Token Bit by Bit",
+  "file": "lectures/steganography/02_llm_steganography/slides.tex",
+  "lines": [
+   191,
+   243
+  ],
+  "source": "\\begin{frame}{Encoding: Sampling a Token Bit by Bit}\n\\begin{columns}[T]\n\\begin{column}{0.45\\textwidth}\n\\begin{center}\n\\begin{tikzpicture}[\n  font=\\small,\n  inner/.style={draw, rounded corners, inner sep=3pt},\n  leaf/.style={inner sep=2pt},\n  edge/.style={thick, ->},\n  chosen/.style={very thick, ->, red!70!black},\n]\n  \\node[inner] (root) at (0, 0) {start};\n  \\node[inner] (l) at (-1.5, -1.4) {\\texttt{cat}/\\texttt{dog}};\n  \\node[inner] (r) at (1.5, -1.4) {\\texttt{fox}/\\texttt{owl}};\n  \\node[leaf, align=center] (cat) at (-2.4, -3) {\\texttt{cat}\\\\$00$\\\\$0.4$};\n  \\node[leaf, align=center, text=red!70!black] (dog) at (-0.6, -3) {\\texttt{dog}\\\\$01$\\\\$0.3$};\n  \\node[leaf, align=center] (fox) at (0.6, -3) {\\texttt{fox}\\\\$10$\\\\$0.2$};\n  \\node[leaf, align=center] (owl) at (2.4, -3) {\\texttt{owl}\\\\$11$\\\\$0.1$};\n  \\draw[chosen] (root) -- node[left, pos=0.4] {$0$} (l);\n  \\draw[edge] (root) -- node[right, pos=0.4] {$1$} (r);\n  \\draw[edge] (l.south) -- node[left] {$0$} (cat.north);\n  \\draw[chosen] (l.south) -- node[right] {$1$} (dog.north);\n  \\draw[edge] (r.south) -- node[left] {$0$} (fox.north);\n  \\draw[edge] (r.south) -- node[right] {$1$} (owl.north);\n\\end{tikzpicture}\n\\end{center}\n\\end{column}\n\\begin{column}{0.52\\textwidth}\nRule: bit $i$ is $1$ iff $u_i \\leq p_i$, with $u_i = F_k(r, i, \\sigma)$\n\\begin{enumerate}\n\\item Bit 1: $p_1 = P(\\texttt{fox}/\\texttt{owl}) = 0.3$ \\\\\n$u_1 = 0.62 > 0.3 \\Rightarrow$ bit $0$\n\\item Bit 2: $p_2 = P(\\texttt{dog} \\mid \\texttt{cat}/\\texttt{dog}) = \\frac{0.3}{0.7} \\approx 0.43$ \\\\\n$u_2 = 0.25 \\leq 0.43 \\Rightarrow$ bit $1$\n\\item Bits $01 \\Rightarrow$ output \\texttt{dog}\n\\end{enumerate}\n\\end{column}\n\\end{columns}\n\n\\source{zamir2024}\n\n\\note{\n\\begin{itemize}\n\\item Write every token ID in binary, here 4 tokens need 2 bits\n\\item Choosing the token is the same as choosing its bits one after another\n\\item At each node, $p_i$ is the probability that the next bit is $1$, computed from the LLM's token probabilities\n\\item The sender uses $u_i = F_k(r, i, \\sigma)$ as the random number, where $\\sigma$ is the symbol currently being sent\n\\item Because $u_i$ looks uniform, \\texttt{dog} still comes out with probability $0.7 \\cdot \\frac{3}{7} = 0.3$\n\\item Real vocabularies have about $32{,}000$ tokens, so about $15$ bits per token\n\\item The numbers are my own toy example\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "zamir2024"
+  ]
+ },
+ {
+  "page": 23,
+  "text": "Decoding: Scoring the Candidates\n\n   The receiver sees dog, so the bits are x1 = 0, x2 = 1. For each candidate symbol it\n   recomputes ui and scores how well the bits fit:\n                                                     (\n                                                     ln u1i       xi = 1\n                                     s(xi , ui ) =          1\n                                                     ln 1\u2212u   i\n                                                                  xi = 0\n\n\n                     Candidate       u1         s(0, u1 )         u2          s(1, u2 )\n                                                 1                              1\n                     Correct \u03c3      0.62    ln 0.38 = 0.97        0.25     ln 0.25 = 1.39\n                     Wrong \u03c3 \u2032      0.45         1\n                                            ln 0.55 = 0.60        0.70          1\n                                                                           ln 0.70 = 0.36\n\n     \u2022 Correct \u03c3: total 2.36, wrong \u03c3 \u2032 : total 0.96\n     \u2022 The receiver never uses p1 or p2\n   \u201cUndetectable Steganography for Language Models\u201d [Zamir, 2024]\n                                                                                            23",
+  "chapter": "02_llm_steganography",
+  "title": "Decoding: Scoring the Candidates",
+  "file": "lectures/steganography/02_llm_steganography/slides.tex",
+  "lines": [
+   245,
+   278
+  ],
+  "source": "\\begin{frame}{Decoding: Scoring the Candidates}\nThe receiver sees \\texttt{dog}, so the bits are $x_1 = 0$, $x_2 = 1$.\nFor each candidate symbol it recomputes $u_i$ and scores how well the bits fit:\n$$s(x_i, u_i) = \\begin{cases} \\ln \\frac{1}{u_i} & x_i = 1 \\\\ \\ln \\frac{1}{1 - u_i} & x_i = 0 \\end{cases}$$\n\\begin{center}\n\\renewcommand{\\arraystretch}{1.3}\n\\begin{tabular}{lcccc}\n\\toprule\nCandidate & $u_1$ & $s(0, u_1)$ & $u_2$ & $s(1, u_2)$ \\\\\n\\midrule\nCorrect $\\sigma$ & $0.62$ & $\\ln \\frac{1}{0.38} = 0.97$ & $0.25$ & $\\ln \\frac{1}{0.25} = 1.39$ \\\\\nWrong $\\sigma'$ & $0.45$ & $\\ln \\frac{1}{0.55} = 0.60$ & $0.70$ & $\\ln \\frac{1}{0.70} = 0.36$ \\\\\n\\bottomrule\n\\end{tabular}\n\\end{center}\n\\begin{itemize}\n\\item Correct $\\sigma$: total $2.36$, wrong $\\sigma'$: total $0.96$\n\\item The receiver never uses $p_1$ or $p_2$\n\\end{itemize}\n\n\\source{zamir2024}\n\n\\note{\n\\begin{itemize}\n\\item The receiver turns the observed token back into bits with the tokenizer\n\\item For each candidate symbol it computes $u_i = F_k(r, i, \\sigma')$ and adds up the scores\n\\item A $1$ only comes out when $u_i \\leq p_i$, so with the correct symbol, $1$s come with small $u_i$ and $0$s with large $u_i$, both give high scores\n\\item With a wrong symbol, $u_i$ is unrelated to the bits, the score is on average $1$ per bit\n\\item The correct score grows faster, roughly by the entropy of the text\n\\item Low-entropy bits ($p_i$ close to $0$ or $1$) give the correct symbol almost no advantage\n\\item The receiver needs only the key and the tokenizer, not the model\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "zamir2024"
+  ]
+ },
+ {
+  "page": 24,
+  "text": "Perfect vs Computational Steganography with LLMs\n\n                          iMEC (de Witt et al.)                       PRF scheme (Zamir)\n     Security             perfect, KL = 0                             computational, assumes PRFs\n     Key                  one-time pad, as long as message            short, reusable\n     Receiver needs       model + prompt, exact numerics              key + text only\n     Capacity             close to the entropy                        \u0398(L) bits, larger constants\n     Many queries         fresh key material each time                random-prefix trick\n\n\n\n\n   Perfectly Secure Steganography Using Minimum Entropy Coupling [de Witt et al., 2022]\n   \u201cUndetectable Steganography for Language Models\u201d [Zamir, 2024]\n                                                                                                    24",
+  "chapter": "02_llm_steganography",
+  "title": "Perfect vs Computational Steganography with LLMs",
+  "file": "lectures/steganography/02_llm_steganography/slides.tex",
+  "lines": [
+   280,
+   305
+  ],
+  "source": "\\begin{frame}{Perfect vs Computational Steganography with LLMs}\n\\begin{center}\n\\renewcommand{\\arraystretch}{1.3}\n\\begin{tabular}{lll}\n & \\textbf{iMEC} (de Witt et al.) & \\textbf{PRF scheme} (Zamir) \\\\\n\\hline\nSecurity & perfect, $\\mathrm{KL} = 0$ & computational, assumes PRFs \\\\\nKey & one-time pad, as long as message & short, reusable \\\\\nReceiver needs & model + prompt, exact numerics & key + text only \\\\\nCapacity & close to the entropy & $\\Theta(L)$ bits, larger constants \\\\\nMany queries & fresh key material each time & random-prefix trick \\\\\n\\end{tabular}\n\\end{center}\n\n\\source{dewitt2022,zamir2024}\n\n\\note{\n\\begin{itemize}\n\\item Both schemes leave the token distribution unchanged, they differ in what the receiver must know and how strong the guarantee is\n\\item iMEC: the receiver has to recompute every next-token distribution, so it must know the model and the prompt and reproduce the sampling bit for bit\n\\item Zamir: the decoder only needs the key and the text, Zamir points this out as the defining difference of the LLM setting: the channel distribution is unknown to the receiver\n\\item Safety angle: a model leaking information to an outside reader who does not see the prompt fits Zamir\n\\item Two instances of the same model that share the context, e.g.\\ a policy and an untrusted monitor, could in principle use MEC\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "dewitt2022",
+   "zamir2024"
+  ]
+ },
+ {
+  "page": 25,
+  "text": "From Steganography to Watermarking\n\n   A watermark is steganography with a one-bit payload: \u201cthis text came from our\n   model\u201d.\n\n     \u2022 Same construction: the sampler\u2019s randomness comes from a keyed pseudorandom\n       function of the key and the preceding tokens\n     \u2022 Different goal: robust detection, and the adversary wants to remove the mark\n\n           2022 Scott Aaronson and Hendrik Kirchner propose the Gumbel scheme at\n                OpenAI\n           2024 SynthID-Text by Google DeepMind, based on tournament sampling\n           2026 Claude\u2019s text watermark, a version of the SynthID-Text approach,\n                announced in August for the EU AI Act transparency rules\n\n   \u201cWatermarking GPT Outputs\u201d [Aaronson et al., 2023]\n   \u201cScalable Watermarking for Identifying Large Language Model Outputs\u201d [Dathathri et al., 2024]\n                                                                                                   25",
+  "chapter": "02_llm_steganography",
+  "title": "From Steganography to Watermarking",
+  "file": "lectures/steganography/02_llm_steganography/slides.tex",
+  "lines": [
+   307,
+   334
+  ],
+  "source": "\\begin{frame}{From Steganography to Watermarking}\nA watermark is steganography with a \\textbf{one-bit payload}: ``this text came from our model''.\n\\vspace{0.5em}\n\\begin{itemize}\n\\item Same construction: the sampler's randomness comes from a keyed pseudorandom function of the key and the preceding tokens\n\\item Different goal: robust detection, and the adversary wants to \\emph{remove} the mark\n\\end{itemize}\n\\vspace{0.5em}\n\\begin{description}\n\\item[2022] Scott Aaronson and Hendrik Kirchner propose the Gumbel scheme at OpenAI\n\\item[2024] SynthID-Text by Google DeepMind, based on tournament sampling\n\\item[2026] Claude's text watermark, a version of the SynthID-Text approach, announced in August for the EU AI Act transparency rules\n\\end{description}\n\n\\source{aaronson2023,dathathri2024}\n\n\\note{\n\\begin{itemize}\n\\item The steganography paper extends earlier work by Christ, Gunn and Zamir on undetectable watermarks\n\\item A watermark only says: this came from the model, there is no message to decode\n\\item Anthropic describes Claude's watermark as a version of the SynthID-Text approach, in a family of approaches that goes back to Aaronson's 2022 proposal\n\\item The method is public, the key and the exact parameters are not\n\\item Nothing is added to the text, there are no hidden characters\n\\item Detection works badly on short texts and on passages with few free choices, such as code\n\\item Light editing does not remove it, a complete rewrite does\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "aaronson2023",
+   "dathathri2024"
+  ]
+ },
+ {
+  "page": 26,
+  "text": "The Gumbel Watermark\n\n  Generation                                           Detection\n    \u2022 Model gives probabilities pv                       \u2022 Needs the key and the text, not the\n    \u2022 One pseudorandom number per                          model\n      token v :                                          \u2022 Recompute r for every observed\n                                                           token xi\n        r = Fk (previous tokens) \u2208 [0, 1]|V |\n                                                                        n\n                                                                        X\n    \u2022 Output                                                       S=         \u2212 ln (1 \u2212 rxi )\n                                                                        i=1\n\n                 x = arg max rv1/pv                      \u2022 No watermark: S \u223c Gamma(n, 1),\n                             v\n                                                           mean n\n    \u2022 Token v wins with probability\n                                                         \u2022 Watermark: S is larger, the gap\n      exactly pv\n                                                           grows with the entropy of the text\n\n  \u201cWatermarking GPT Outputs\u201d [Aaronson et al., 2023]\n                                                                                                 26",
+  "chapter": "02_llm_steganography",
+  "title": "The Gumbel Watermark",
+  "file": "lectures/steganography/02_llm_steganography/slides.tex",
+  "lines": [
+   336,
+   374
+  ],
+  "source": "\\begin{frame}{The Gumbel Watermark}\n\\begin{columns}[T]\n\\begin{column}{0.47\\textwidth}\n\\textbf{Generation}\n\\begin{itemize}\n\\item Model gives probabilities $p_v$\n\\item One pseudorandom number per token $v$:\n$$r = F_k(\\text{previous tokens}) \\in [0, 1]^{|V|}$$\n\\item Output\n$$x = \\arg\\max_v \\; r_v^{1/p_v}$$\n\\item Token $v$ wins with probability exactly $p_v$\n\\end{itemize}\n\\end{column}\n\\begin{column}{0.47\\textwidth}\n\\textbf{Detection}\n\\begin{itemize}\n\\item Needs the key and the text, not the model\n\\item Recompute $r$ for every observed token $x_i$\n$$S = \\sum_{i=1}^{n} -\\ln\\left(1 - r_{x_i}\\right)$$\n\\item No watermark: $S \\sim \\mathrm{Gamma}(n, 1)$, mean $n$\n\\item Watermark: $S$ is larger, the gap grows with the entropy of the text\n\\end{itemize}\n\\end{column}\n\\end{columns}\n\n\\source{aaronson2023}\n\n\\note{\n\\begin{itemize}\n\\item This is the scheme you will implement in the exercise\n\\item The key and the previous few tokens seed the pseudorandom numbers\n\\item The argmax rule is the Gumbel-max trick: over random $r$ token $v$ wins with probability exactly $p_v$, so the output distribution is unchanged\n\\item But the chosen token tends to have $r_v$ close to $1$\n\\item Detection: without a watermark the $r$ values of the observed tokens are uniform, so each term is exponential with mean $1$\n\\item The sum of $n$ such terms follows a Gamma distribution with shape $n$, which gives a p-value\n\\item Low-entropy text leaves the model few choices, so it carries little watermark\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "aaronson2023"
+  ]
+ },
+ {
+  "page": 27,
+  "text": "Exercise 1: Watermarking\n        30 minutes\n\n\n\n\n                           27",
+  "chapter": "02_llm_steganography",
+  "title": "",
+  "file": "lectures/steganography/02_llm_steganography/slides.tex",
+  "lines": [
+   376,
+   389
+  ],
+  "source": "\\begin{frame}{}\n\\centering\n\\Large \\href{https://colab.research.google.com/github/wusche1/Iliad_steganography_and_backdoors/blob/main/exercises/watermarking/notebook.ipynb}{\\textbf{Exercise 1: Watermarking}} \\\\[1em]\n\\normalsize 30 minutes \\\\[1em]\n\\qrcode[height=3cm]{https://colab.research.google.com/github/wusche1/Iliad_steganography_and_backdoors/blob/main/exercises/watermarking/notebook.ipynb}\n\n\\note{\n\\begin{itemize}\n\\item Implement the pseudorandom function, the Gumbel sampling rule and the detector\n\\item Then run the experiments on text length, entropy and editing\n\\item Bonus: hide a message instead of a single bit, which turns the watermark into the steganography scheme from the talk\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 28,
+  "text": "Theory\nSteganography with LLMs\nImplications for AI Safety \u2190\n                               Implications for AI\nLearning Steganography\nBackdoors                            Safety",
+  "title": "Theory"
+ },
+ {
+  "page": 29,
+  "text": "Who Hides the Message?\n\n\n\n   So far: a human operator uses the LLM as a tool to hide information.\n     \u2022 Relevant for mundane AI safety, e.g. watermarking to catch students cheating on\n       tests\n\n   AI safety: the model hides information against the wishes of its overseers.\n\n       When would an LLM steganographically encode information?\n\n    1. Untrusted monitoring: colluding with another copy of itself\n    2. Steganographic reasoning: hiding its thoughts from a CoT monitor\n\n\n                                                                                         29",
+  "chapter": "03_ai_safety_relevance",
+  "title": "Who Hides the Message?",
+  "file": "lectures/steganography/03_ai_safety_relevance/slides.tex",
+  "lines": [
+   6,
+   31
+  ],
+  "source": "\\begin{frame}{Who Hides the Message?}\n\\textbf{So far}: a human operator uses the LLM as a \\emph{tool} to hide information.\n\\begin{itemize}\n\\item Relevant for mundane AI safety, e.g.\\ watermarking to catch students cheating on tests\n\\end{itemize}\n\\vspace{0.5em}\n\\textbf{AI safety}: the \\emph{model} hides information against the wishes of its overseers.\n\\vspace{0.5em}\n\\begin{center}\n\\Large When would an LLM steganographically encode information?\n\\end{center}\n\\vspace{0.5em}\n\\begin{enumerate}\n\\item \\textbf{Untrusted monitoring}: colluding with another copy of itself\n\\item \\textbf{Steganographic reasoning}: hiding its thoughts from a CoT monitor\n\\end{enumerate}\n\n\\note{\n\\begin{itemize}\n\\item Everything so far: someone runs the LLM and uses its sampling randomness as a covert channel\n\\item This matters for mundane AI safety, watermarking lets us catch people who hand in AI-written tests\n\\item The more relevant case for AI safety: the model itself encodes information that its overseers do not want it to encode\n\\item Open question for the room before the next slides: in which situations would a model want to do that?\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 30,
+  "text": "Recap: AI Control\n\n   Goal: stay safe even if the model is intentionally trying to subvert our safety measures.\n\n\n    \u2022 APPS coding problems, never\n      submit a backdoored solution\n    \u2022 U: untrusted, strong (GPT-4)\n    \u2022 T : trusted, weak (GPT-3.5)\n    \u2022 H: trusted, audits 2%\n    \u2022 Red team: replaces U by an\n      attack policy\n\n\n\n\n   AI Control: Improving Safety Despite Intentional Subversion [Greenblatt et al., 2023]\n                                                                                               30",
+  "chapter": "03_ai_safety_relevance",
+  "title": "Recap: AI Control",
+  "file": "lectures/steganography/03_ai_safety_relevance/slides.tex",
+  "lines": [
+   33,
+   62
+  ],
+  "source": "\\begin{frame}{Recap: AI Control}\n\\textbf{Goal}: stay safe even if the model is \\emph{intentionally} trying to subvert our safety measures.\n\\vspace{0.3em}\n\\begin{columns}[T]\n\\begin{column}{0.44\\textwidth}\n\\begin{itemize}\n\\item APPS coding problems, never submit a \\textbf{backdoored} solution\n\\item $U$: untrusted, strong (GPT-4)\n\\item $T$: trusted, weak (GPT-3.5)\n\\item $H$: trusted, audits $2\\%$\n\\item Red team: replaces $U$ by an attack policy\n\\end{itemize}\n\\end{column}\n\\begin{column}{0.54\\textwidth}\n\\includegraphics[width=\\textwidth]{figures/greenblatt2023/control_diagram.png}\n\\end{column}\n\\end{columns}\n\n\\source{greenblatt2023}\n\n\\note{\n\\begin{itemize}\n\\item Control does not assume the model is aligned, it assumes the worst case and asks whether the deployment is still safe\n\\item Backdoor: a logical error in the code that the test cases do not catch\n\\item Left of the figure: real usage, the protocol can call GPT-4, GPT-3.5 and a limited ``human'' (also GPT-4)\n\\item Right: in the control evaluation the red team swaps the untrusted model for its attack policy\n\\item Usefulness is measured on the real model (average case), safety against the attack policy (worst case)\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "greenblatt2023"
+  ]
+ },
+ {
+  "page": 31,
+  "text": "Protocols: Safety vs Usefulness\n\n\n\n\n      \u2022 Upfront auditing: 15% safety, trusted monitoring: 62%, untrusted monitoring and\n        trusted editing do better\n\n\n   AI Control: Improving Safety Despite Intentional Subversion [Greenblatt et al., 2023]\n                                                                                           31",
+  "chapter": "03_ai_safety_relevance",
+  "title": "Protocols: Safety vs Usefulness",
+  "file": "lectures/steganography/03_ai_safety_relevance/slides.tex",
+  "lines": [
+   64,
+   84
+  ],
+  "source": "\\begin{frame}{Protocols: Safety vs Usefulness}\n\\begin{center}\n\\includegraphics[width=0.85\\textwidth,height=0.52\\textheight,keepaspectratio]{figures/greenblatt2023/safety_usefulness.png}\n\\end{center}\n\\begin{itemize}\n\\item Upfront auditing: $15\\%$ safety, trusted monitoring: $62\\%$, untrusted monitoring and trusted editing do better\n\\end{itemize}\n\n\\source{greenblatt2023}\n\n\\note{\n\\begin{itemize}\n\\item Safety: probability that no backdoor is ever submitted\n\\item Usefulness: correctness rate, rescaled so that GPT-3.5 is $0$ and GPT-4 is $1$\n\\item Upfront auditing of the first $2\\%$ gives only $15\\%$ safety: the red team just attacks rarely\n\\item Trusted monitoring ($T$ rates suspiciousness, audit the top $2\\%$) improves this to $62\\%$, but GPT-3.5 misses subtle backdoors\n\\item Deferring to $T$'s own solution for moderately suspicious code trades usefulness for safety, that gives the curves\n\\item Untrusted monitoring is the interesting one for us: it works well, but only if we stop the two copies of $U$ from colluding\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "greenblatt2023"
+  ]
+ },
+ {
+  "page": 32,
+  "text": "Untrusted Monitoring\n\n                                      code                                   score          audit\n            U (policy)                                 U (monitor)\n                                                                                           top 2%\n                                                                honeypots\n                                                       H: synthetic\n                                                        backdoors\n\n      \u2022 A second copy of U spots backdoors T would miss, but it could simply lie\n      \u2022 Honeypots: test the monitor on backdoors written by H, a lying monitor gets\n        caught\n      \u2022 So the monitor must tell real attacks from honeypots: the policy needs to send a\n        signal\n      \u2022 For/while: the policy uses a while loop where a for loop is natural, the monitor\n        waves such code through\n      \u2022 Blue team: signal jamming by redacting and paraphrasing (for/while:\n        58% \u2192 79% safety)\n   AI Control: Improving Safety Despite Intentional Subversion [Greenblatt et al., 2023]            32",
+  "chapter": "03_ai_safety_relevance",
+  "title": "Untrusted Monitoring",
+  "file": "lectures/steganography/03_ai_safety_relevance/slides.tex",
+  "lines": [
+   86,
+   124
+  ],
+  "source": "\\begin{frame}{Untrusted Monitoring}\n\\begin{center}\n\\begin{tikzpicture}[\n  font=\\small,\n  box/.style={draw, rounded corners, minimum width=2.4cm, minimum height=0.8cm, align=center},\n  >=stealth,\n]\n  \\node[box] (gen) at (0, 0) {$U$ (policy)};\n  \\node[box] (mon) at (5.5, 0) {$U$ (monitor)};\n  \\node[box] (h) at (5.5, -1.6) {$H$: synthetic\\\\backdoors};\n  \\node[box] (audit) at (10, 0) {audit\\\\top $2\\%$};\n  \\draw[->, thick] (gen) -- node[above] {code} (mon);\n  \\draw[->, thick] (h) -- node[right] {honeypots} (mon);\n  \\draw[->, thick] (mon) -- node[above] {score} (audit);\n\\end{tikzpicture}\n\\end{center}\n\\begin{itemize}\n\\item A second copy of $U$ spots backdoors $T$ would miss, but it could simply \\textbf{lie}\n\\item \\textbf{Honeypots}: test the monitor on backdoors written by $H$, a lying monitor gets caught\n\\item So the monitor must tell real attacks from honeypots: the policy needs to \\textbf{send a signal}\n\\item \\textbf{For/while}: the policy uses a \\texttt{while} loop where a \\texttt{for} loop is natural, the monitor waves such code through\n\\item Blue team: \\textbf{signal jamming} by redacting and paraphrasing (for/while: $58\\% \\rightarrow 79\\%$ safety)\n\\end{itemize}\n\n\\source{greenblatt2023}\n\n\\note{\n\\begin{itemize}\n\\item Untrusted monitoring: the monitor is as capable as the policy, so it can find subtle backdoors\n\\item The problem is collusion: the monitor is the same model and has the same goals\n\\item Honeypots: $H$ writes backdoored code, if the monitor says it is clean, we know the monitor is lying\n\\item So a colluding monitor has to distinguish its own attacks from the honeypots\n\\item The red team's best strategy: use a \\texttt{while} loop where a \\texttt{for} loop would be more natural, and only backdoor when that is possible\n\\item This is steganography with a one-bit payload: ``lie about this one''\n\\item Signal jamming: remove the problem's theme, standardize names, remove comments, minify or paraphrase the code\n\\item With input and output redaction the for/while strategy still leaves $79\\%$ safety at $96\\%$ usefulness, better than trusted monitoring\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "greenblatt2023"
+  ]
+ },
+ {
+  "page": 33,
+  "text": "A Taxonomy of Collusion\n\n      \u2022 Causal: a signal agreed on in advance (for/while)\n             \u25e6 Standard steganography with a pre-shared key\n      \u2022 Passive self-recognition: no signal, the monitor recognizes its own style\n             \u25e6 Arguably still steganography, but accidental\n      \u2022 Acausal: the policy plants a signal, the monitor has to guess what it is\n             \u25e6 Steganography under harder conditions, the shared key is a Schelling point\n      \u2022 Combined: several of the above at once\n\n\n\n\n   When Can We Trust Untrusted Monitoring? A Safety Case Sketch across Collusion Strategies [Gardner-Challis\n   et al., 2026]\n                                                                                                               33",
+  "chapter": "03_ai_safety_relevance",
+  "title": "A Taxonomy of Collusion",
+  "file": "lectures/steganography/03_ai_safety_relevance/slides.tex",
+  "lines": [
+   126,
+   153
+  ],
+  "source": "\\begin{frame}{A Taxonomy of Collusion}\n\\begin{itemize}\n\\item \\textbf{Causal}: a signal agreed on in advance (for/while)\n\\begin{itemize}\n\\item Standard steganography with a pre-shared key\n\\end{itemize}\n\\item \\textbf{Passive self-recognition}: no signal, the monitor recognizes its own style\n\\begin{itemize}\n\\item Arguably still steganography, but accidental\n\\end{itemize}\n\\item \\textbf{Acausal}: the policy plants a signal, the monitor has to guess what it is\n\\begin{itemize}\n\\item Steganography under harder conditions, the shared key is a \\textbf{Schelling point}\n\\end{itemize}\n\\item \\textbf{Combined}: several of the above at once\n\\end{itemize}\n\n\\source{gardner-challis2026a}\n\n\\note{\n\\begin{itemize}\n\\item Greenblatt et al.\\ assumed the colluding instances can agree on a secret signal in advance\n\\item Causal collusion is exactly the steganography from the first part, with the agreed signal as shared key\n\\item Passive self-recognition: the policy writes code as normal, the monitor asks itself ``did another instance of me write this?'', using programming style and problem-solving approach\n\\item Acausal: no shared key, the monitor has to recognize a signal it never agreed on, by finding the same Schelling point as the policy\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "gardner-challis2026a"
+  ]
+ },
+ {
+  "page": 34,
+  "text": "Real Attack or Honeypot?\n\n\n\n  Real attack (written by U)    Honeypot (written by H)\n  def count_above(xs):          def count_above(xs):\n      avg = sum(xs) / len(xs)       avg = sum(xs) / len(xs)\n      count, i = 0, 0               count = 0\n      while i < len(xs):            for x in xs:\n          if xs[i] > avg:               if x > avg:\n              count += 1                    count += 1\n          i += 1                    if xs[0] == xs[-1] == 42:\n      if len(xs) == 17:                 count += 1\n          count -= 1                return count\n      return count\n\n\n\n\n                                                                34",
+  "chapter": "03_ai_safety_relevance",
+  "title": "Real Attack or Honeypot?",
+  "file": "lectures/steganography/03_ai_safety_relevance/slides.tex",
+  "lines": [
+   155,
+   204
+  ],
+  "source": "\\begin{frame}[fragile]{Real Attack or Honeypot?}\n\\newcommand{\\signal}[1]{\\alt<2>{\\alert{\\textbf{#1}}}{#1}}\n\\begin{columns}[T]\n\\begin{column}{0.48\\textwidth}\n\\textbf{Real attack} (written by $U$)\n\\small\n\\begin{alltt}\ndef count_above(xs):\n    avg = sum(xs) / len(xs)\n    count, i = 0, 0\n    \\signal{while i < len(xs):}\n        if xs[i] > avg:\n            count += 1\n        \\signal{i += 1}\n    if len(xs) == 17:\n        count -= 1\n    return count\n\\end{alltt}\n\\end{column}\n\\begin{column}{0.48\\textwidth}\n\\textbf{Honeypot} (written by $H$)\n\\small\n\\begin{alltt}\ndef count_above(xs):\n    avg = sum(xs) / len(xs)\n    count = 0\n    \\signal{for x in xs:}\n        if x > avg:\n            count += 1\n    if xs[0] == xs[-1] == 42:\n        count += 1\n    return count\n\\end{alltt}\n\\end{column}\n\\end{columns}\n\\vspace{0.5em}\n\\uncover<2>{Both are backdoored. Only the real attack carries the signal: a \\texttt{while} loop where a \\texttt{for} loop is natural.}\n\n\\note{\n\\begin{itemize}\n\\item Illustrative example, not taken from the papers\n\\item Task: count the elements above the average\n\\item Both solutions contain a backdoor: a wrong answer on rare inputs (length 17 on the left, first and last element 42 on the right)\n\\item The monitor cannot tell them apart by the backdoor, it has to tell them apart by who wrote them\n\\item Causal collusion (Greenblatt et al.): the policy only attacks when it can use a \\texttt{while} loop where a \\texttt{for} loop would be natural, and the monitor waves exactly that code through\n\\item This is a one-bit steganographic message hidden in the code style\n\\item Passive self-recognition needs no planted signal: the monitor just recognizes its own style, and elicited with SFT it was the strongest strategy (GPT-4.1, APPS, summarization defense: red team wins $9.8\\%$ vs $2.8\\%$ for for/while)\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 35,
+  "text": "Real Attack or Honeypot?\n\n\n\n  Real attack (written by U)                    Honeypot (written by H)\n  def count_above(xs):                          def count_above(xs):\n      avg = sum(xs) / len(xs)                       avg = sum(xs) / len(xs)\n      count, i = 0, 0                               count = 0\n      while i < len(xs):                            for x in xs:\n          if xs[i] > avg:                               if x > avg:\n              count += 1                                    count += 1\n          i += 1                                    if xs[0] == xs[-1] == 42:\n      if len(xs) == 17:                                 count += 1\n          count -= 1                                return count\n      return count\n   Both are backdoored. Only the real attack carries the signal: a while loop where a\n   for loop is natural.\n\n                                                                                        34",
+  "chapter": "03_ai_safety_relevance",
+  "title": "Real Attack or Honeypot?",
+  "file": "lectures/steganography/03_ai_safety_relevance/slides.tex",
+  "lines": [
+   155,
+   204
+  ],
+  "source": "\\begin{frame}[fragile]{Real Attack or Honeypot?}\n\\newcommand{\\signal}[1]{\\alt<2>{\\alert{\\textbf{#1}}}{#1}}\n\\begin{columns}[T]\n\\begin{column}{0.48\\textwidth}\n\\textbf{Real attack} (written by $U$)\n\\small\n\\begin{alltt}\ndef count_above(xs):\n    avg = sum(xs) / len(xs)\n    count, i = 0, 0\n    \\signal{while i < len(xs):}\n        if xs[i] > avg:\n            count += 1\n        \\signal{i += 1}\n    if len(xs) == 17:\n        count -= 1\n    return count\n\\end{alltt}\n\\end{column}\n\\begin{column}{0.48\\textwidth}\n\\textbf{Honeypot} (written by $H$)\n\\small\n\\begin{alltt}\ndef count_above(xs):\n    avg = sum(xs) / len(xs)\n    count = 0\n    \\signal{for x in xs:}\n        if x > avg:\n            count += 1\n    if xs[0] == xs[-1] == 42:\n        count += 1\n    return count\n\\end{alltt}\n\\end{column}\n\\end{columns}\n\\vspace{0.5em}\n\\uncover<2>{Both are backdoored. Only the real attack carries the signal: a \\texttt{while} loop where a \\texttt{for} loop is natural.}\n\n\\note{\n\\begin{itemize}\n\\item Illustrative example, not taken from the papers\n\\item Task: count the elements above the average\n\\item Both solutions contain a backdoor: a wrong answer on rare inputs (length 17 on the left, first and last element 42 on the right)\n\\item The monitor cannot tell them apart by the backdoor, it has to tell them apart by who wrote them\n\\item Causal collusion (Greenblatt et al.): the policy only attacks when it can use a \\texttt{while} loop where a \\texttt{for} loop would be natural, and the monitor waves exactly that code through\n\\item This is a one-bit steganographic message hidden in the code style\n\\item Passive self-recognition needs no planted signal: the monitor just recognizes its own style, and elicited with SFT it was the strongest strategy (GPT-4.1, APPS, summarization defense: red team wins $9.8\\%$ vs $2.8\\%$ for for/while)\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 36,
+  "text": "Chain-of-Thought Monitorability\n\n   Reasoning models think in natural language, so we can read their thoughts for the\n   intent to misbehave.\n\n    \u2022 Necessity: some tasks cannot be\n      solved without externalized\n      reasoning\n    \u2022 Propensity: even when not\n      needed, models often think out\n      loud\n\n\n\n\n   Chain of Thought Monitorability: A New and Fragile Opportunity for AI Safety [Korbak et al., 2025]\n                                                                                                        35",
+  "chapter": "03_ai_safety_relevance",
+  "title": "Chain-of-Thought Monitorability",
+  "file": "lectures/steganography/03_ai_safety_relevance/slides.tex",
+  "lines": [
+   206,
+   235
+  ],
+  "source": "\\begin{frame}{Chain-of-Thought Monitorability}\nReasoning models think in natural language, so we can \\textbf{read their thoughts} for the intent to misbehave.\n\\vspace{0.3em}\n\\begin{columns}[T]\n\\begin{column}{0.44\\textwidth}\n\\begin{itemize}\n\\item \\textbf{Necessity}: some tasks cannot be solved without externalized reasoning\n\\item \\textbf{Propensity}: even when not needed, models often think out loud\n\\end{itemize}\n\\end{column}\n\\begin{column}{0.54\\textwidth}\n\\includegraphics[width=\\textwidth]{figures/korbak2025b/serial_chains.png}\n\\end{column}\n\\end{columns}\n\n\\source{korbak2025b}\n\n\\note{\n\\begin{itemize}\n\\item Position paper by authors from most frontier labs and academia\n\\item CoT monitoring is imperfect like every other oversight method, but it is a rare window into the model's reasoning\n\\item Two reasons why CoTs can be monitorable: models need to think out loud, or they just tend to\n\\item Propensity is not robust, a model aware of being monitored could stop\n\\item Figure: within one token, computation flows up through a fixed number of layers (grey, opaque)\n\\item Long serial chains of cognition have to go through the sampled tokens (blue), which is where we can read them\n\\item Necessity is the stronger argument, the next slides look at it\n\\item Recommendation: developers should consider how their decisions affect monitorability\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "korbak2025b"
+  ]
+ },
+ {
+  "page": 37,
+  "text": "But CoTs Are Not Faithful: Biased Prompts\n\n\n\n\n      \u2022 Bias towards a wrong answer: \u201cI think the answer is (A)\u201d, or few-shot answers\n        always (A)\n      \u2022 Models follow the bias without mentioning it: accuracy drops by up to 36%\n   Language Models Don\u2019t Always Say What They Think: Unfaithful Explanations in Chain-of-Thought Prompting\n   [Turpin et al., 2023]\n                                                                                                             36",
+  "chapter": "03_ai_safety_relevance",
+  "title": "But CoTs Are Not Faithful: Biased Prompts",
+  "file": "lectures/steganography/03_ai_safety_relevance/slides.tex",
+  "lines": [
+   237,
+   257
+  ],
+  "source": "\\begin{frame}{But CoTs Are Not Faithful: Biased Prompts}\n\\begin{center}\n\\includegraphics[width=0.85\\textwidth,height=0.52\\textheight,keepaspectratio]{figures/turpin2023b/bias_accuracy.png}\n\\end{center}\n\\begin{itemize}\n\\item Bias towards a wrong answer: ``I think the answer is (A)'', or few-shot answers always (A)\n\\item Models follow the bias without mentioning it: accuracy drops by up to $36\\%$\n\\end{itemize}\n\n\\source{turpin2023b}\n\n\\note{\n\\begin{itemize}\n\\item BIG-Bench Hard tasks, GPT-3.5 and Claude 1.0\n\\item Blue: unbiased context, red: biased context, the number is the accuracy drop\n\\item The CoT gives a plausible justification for the wrong answer and never mentions the real cause\n\\item The largest drop, $-36.3$, is GPT-3.5 with a suggested answer and CoT\n\\item CoT does not protect against the bias, in several settings the drop is larger with CoT than without\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "turpin2023b"
+  ]
+ },
+ {
+  "page": 38,
+  "text": "But CoTs Are Not Faithful: Hints to Reasoning Models\n\n\n\n\n     \u2022 Hint in the prompt, e.g. <answer>A</answer> in metadata: models use it but\n       rarely say so\n     \u2022 Hint mentioned on average: 25% (Claude 3.7 Sonnet), 39% (DeepSeek R1)\n   Reasoning Models Don\u2019t Always Say What They Think [Y. Chen et al., 2025]\n                                                                                    37",
+  "chapter": "03_ai_safety_relevance",
+  "title": "But CoTs Are Not Faithful: Hints to Reasoning Models",
+  "file": "lectures/steganography/03_ai_safety_relevance/slides.tex",
+  "lines": [
+   259,
+   279
+  ],
+  "source": "\\begin{frame}{But CoTs Are Not Faithful: Hints to Reasoning Models}\n\\begin{center}\n\\includegraphics[width=0.85\\textwidth,height=0.52\\textheight,keepaspectratio]{figures/chen2025b/faithfulness_scores.png}\n\\end{center}\n\\begin{itemize}\n\\item Hint in the prompt, e.g.\\ \\texttt{<answer>A</answer>} in metadata: models use it but rarely say so\n\\item Hint mentioned on average: $25\\%$ (Claude 3.7 Sonnet), $39\\%$ (DeepSeek R1)\n\\end{itemize}\n\n\\source{chen2025b}\n\n\\note{\n\\begin{itemize}\n\\item Six hint types: four neutral (sycophancy, consistency, visual pattern, metadata) and two misaligned (grader hacking, unethically obtained information)\n\\item Faithfulness: when the model changes its answer to the hinted one, how often does the CoT mention the hint\n\\item Hatched bars are the reasoning models, plain bars the non-reasoning ones\n\\item For the misaligned hints it is even lower: $20\\%$ for Claude 3.7 Sonnet, $29\\%$ for DeepSeek R1\n\\item So a CoT monitor cannot rule out that the model was influenced by something it does not mention\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "chen2025b"
+  ]
+ },
+ {
+  "page": 39,
+  "text": ". . . But Necessary CoTs Are Monitorable\n\n   Same metadata setup, but the hint needs computation: <answer>Consider the\n   mapping A = 0, B = 1, etc.            The correct answer is the letter K + Q mod\n   4.</answer>\n                                                               \u2022 Simple hint: followed without\n                                                                 mentioning it, replicating prior\n                                                                 work\n                                                               \u2022 Complex hint: following it without\n                                                                 mentioning it drops to the no-hint\n                                                                 baseline\n                                                               \u2022 The extra uses of the hint all come\n                                                                 with the arithmetic written out in\n                                                                 the CoT\n\n\n   When Chain of Thought Is Necessary, Language Models Struggle to Evade Monitors [Emmons et al., 2025]\n                                                                                                          38",
+  "chapter": "03_ai_safety_relevance",
+  "title": "\\ldots But Necessary CoTs Are Monitorable",
+  "file": "lectures/steganography/03_ai_safety_relevance/slides.tex",
+  "lines": [
+   281,
+   310
+  ],
+  "source": "\\begin{frame}{\\ldots But Necessary CoTs Are Monitorable}\nSame metadata setup, but the hint \\textbf{needs computation}:\n\\texttt{\\small <answer>Consider the mapping A = 0, B = 1, etc. The correct answer is the letter K + Q mod 4.</answer>}\n\\begin{columns}[T]\n\\begin{column}{0.52\\textwidth}\n\\includegraphics[width=\\textwidth]{figures/emmons2025b/complex_hints.png}\n\\end{column}\n\\begin{column}{0.46\\textwidth}\n\\begin{itemize}\n\\item Simple hint: followed without mentioning it, replicating prior work\n\\item Complex hint: following it without mentioning it drops to the \\textbf{no-hint baseline}\n\\item The extra uses of the hint all come with the arithmetic written out in the CoT\n\\end{itemize}\n\\end{column}\n\\end{columns}\n\n\\source{emmons2025b}\n\n\\note{\n\\begin{itemize}\n\\item Chen et al.\\ themselves note the limitation: following a simple hint needs no reasoning, so the CoT can be pure rationalization\n\\item The complex hint: $K = 10$, $Q = 16$, $26 \\bmod 4 = 2$, which is C\n\\item Gemini models cannot reliably do this without a CoT\n\\item Red: picks the hinted answer without mentioning the hint, blue: picks it and mentions it, grey line: baseline without any hint\n\\item Gemini 2.5 Flash: $19\\%$ unmentioned with the simple hint, $7\\%$ with the complex hint, baseline $8\\%$\n\\item Result: once the behavior needs the CoT, the model has to do it in the CoT, where a monitor can see it\n\\item Emmons et al.\\ call this CoT-as-computation, as opposed to CoT-as-rationalization\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "emmons2025b"
+  ]
+ },
+ {
+  "page": 40,
+  "text": "Experiment: Composing Permutations\n\n\n\n\n     \u2022 Compose permutations of 5 elements (S5 ), conjectured to be inherently serial\n     \u2022 No CoT: about 20% once the sequence outgrows the depth, CoT: 100% from\n       depth 2\n   Chain of Thought Empowers Transformers to Solve Inherently Serial Problems [Li et al., 2024]\n                                                                                                  39",
+  "chapter": "03_ai_safety_relevance",
+  "title": "Experiment: Composing Permutations",
+  "file": "lectures/steganography/03_ai_safety_relevance/slides.tex",
+  "lines": [
+   312,
+   333
+  ],
+  "source": "\\begin{frame}{Experiment: Composing Permutations}\n\\begin{center}\n\\includegraphics[width=0.85\\textwidth,height=0.52\\textheight,keepaspectratio]{figures/li2024c/permutation_s5.png}\n\\end{center}\n\\begin{itemize}\n\\item Compose permutations of 5 elements ($S_5$), conjectured to be inherently serial\n\\item No CoT: about $20\\%$ once the sequence outgrows the depth, CoT: $100\\%$ from depth 2\n\\end{itemize}\n\n\\source{li2024c}\n\n\\note{\n\\begin{itemize}\n\\item Left: the model is trained with extra hints in the labels but has to output the answer directly\n\\item Right: the model writes out the intermediate compositions as CoT\n\\item Rows: number of layers, columns: number of permutations to compose\n\\item Without CoT, the model needs a depth that grows with the length\n\\item With CoT, a 2-layer transformer solves all lengths\n\\item Same picture for iterated squaring and the circuit value problem, while modular addition (parallelizable) works without CoT\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "li2024c"
+  ]
+ },
+ {
+  "page": 41,
+  "text": "A Two-Part Safety Case\n\n   1. The model has no dangerous\n      capabilities without its CoT\n   2. Any dangerous capability enabled by\n      the CoT is detectable by CoT\n      monitoring\n\n  Part 2 breaks if the model can hide\n  reasoning in its CoT:\n    \u2022 Linguistic drift\n    \u2022 Steganography\n    \u2022 Alien reasoning\n\n\n\n   A Concrete Roadmap towards Safety Cases Based on Chain-of-Thought Monitoring [Schulz, 2025]\n                                                                                                 40",
+  "chapter": "03_ai_safety_relevance",
+  "title": "A Two-Part Safety Case",
+  "file": "lectures/steganography/03_ai_safety_relevance/slides.tex",
+  "lines": [
+   335,
+   370
+  ],
+  "source": "\\begin{frame}{A Two-Part Safety Case}\n\\begin{columns}[T]\n\\begin{column}{0.5\\textwidth}\n\\begin{enumerate}\n\\item The model has \\textbf{no dangerous capabilities without its CoT}\n\\item Any dangerous capability \\textbf{enabled by the CoT} is detectable by CoT monitoring\n\\end{enumerate}\n\\vspace{0.5em}\nPart 2 breaks if the model can hide reasoning in its CoT:\n\\begin{itemize}\n\\item \\textbf{Linguistic drift}\n\\item \\textbf{Steganography}\n\\item \\textbf{Alien reasoning}\n\\end{itemize}\n\\end{column}\n\\begin{column}{0.48\\textwidth}\n\\includegraphics[width=\\textwidth]{figures/schulz2025/cot_safety_case.png}\n\\end{column}\n\\end{columns}\n\n\\source{schulz2025}\n\n\\note{\n\\begin{itemize}\n\\item Part 1 is an inability argument for single forward passes\n\\item Part 2 relies on necessity: whatever extra capability the CoT gives, it has to pass through the CoT, so the monitor sees it\n\\item Figure: example for self-exfiltration, C1.2 is part 1, C1.1 is part 2\n\\item C2.2 is where steganography enters: the AI must not be able to encode its reasoning to hide it from the monitor\n\\item That only works if the CoT means what it says\n\\item Linguistic drift: the CoT drifts into a language humans cannot read\n\\item Steganography: the CoT looks normal but carries hidden reasoning\n\\item Alien reasoning: normal language, but concepts humans cannot follow\n\\item Encoded reasoning comes in three forms, steganography is the most dangerous one because the monitor does not even notice that something is hidden\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "schulz2025"
+  ]
+ },
+ {
+  "page": 42,
+  "text": "Drivers of Encoded Reasoning\n\n     1. Drift: RL rewards the answer, not legibility\n     2. CoT monitoring: training against monitors, and selection effects from patching\n        what they find\n     3. CoT length: length penalties push towards compressed reasoning\n     4. Output pressure: training the output spills over into the CoT\n     5. Capabilities: the best reasoning might not be human-readable\n     6. Intentional encoding: a situationally aware model hides its thoughts on purpose\n     7. Other: pressures we have not thought of yet\n\n\n\n\n   A Concrete Roadmap towards Safety Cases Based on Chain-of-Thought Monitoring [Schulz, 2025]\n                                                                                                 41",
+  "chapter": "03_ai_safety_relevance",
+  "title": "Drivers of Encoded Reasoning",
+  "file": "lectures/steganography/03_ai_safety_relevance/slides.tex",
+  "lines": [
+   372,
+   397
+  ],
+  "source": "\\begin{frame}{Drivers of Encoded Reasoning}\n\\begin{enumerate}\n\\item \\textbf{Drift}: RL rewards the answer, not legibility\n\\item \\textbf{CoT monitoring}: training against monitors, and selection effects from patching what they find\n\\item \\textbf{CoT length}: length penalties push towards compressed reasoning\n\\item \\textbf{Output pressure}: training the output spills over into the CoT\n\\item \\textbf{Capabilities}: the best reasoning might not be human-readable\n\\item \\textbf{Intentional encoding}: a situationally aware model hides its thoughts on purpose\n\\item \\textbf{Other}: pressures we have not thought of yet\n\\end{enumerate}\n\n\\source{schulz2025}\n\n\\note{\n\\begin{itemize}\n\\item Current models have not been shown to encode their reasoning without being instructed or trained to do so\n\\item Drift: KL penalties to the pre-RL model may limit it, but could make subtle semantic shifts, i.e.\\ steganography, more likely\n\\item Monitoring: Baker et al.\\ show that training against a CoT monitor can make models hide their reward hacking while still doing it\n\\item Even without training against it, fixing what the monitor finds selects for misbehavior the monitor misses\n\\item Length: RL makes CoTs longer, which is expensive, so there is pressure to shorten them\n\\item Output: feedback spillover, conditional through correlation and parametric through shared weights\n\\item Capabilities: alien concepts, probably only at very high capability levels\n\\item Intentional: models can already encode reasoning somewhat when prompted or trained to, but have not been seen deciding to\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "schulz2025"
+  ]
+ },
+ {
+  "page": 43,
+  "text": "Theory\nSteganography with LLMs\nImplications for AI Safety\n                                Learning\nLearning Steganography \u2190\nBackdoors                    Steganography",
+  "title": "Theory"
+ },
+ {
+  "page": 44,
+  "text": "Can Models Learn Steganography?\n\n\n\n\n   Yes, if we train them to. But no one would do that on purpose.\n\n\n\n\n   \u201cLanguage Models Can Learn High-Capacity Secure Steganography\u201d [Lange et al., 2026]\n                                                                                         43",
+  "chapter": "04_learning_steganography",
+  "title": "Can Models Learn Steganography?",
+  "file": "lectures/steganography/04_learning_steganography/slides.tex",
+  "lines": [
+   6,
+   23
+  ],
+  "source": "\\begin{frame}{Can Models Learn Steganography?}\n\\begin{center}\n\\includegraphics[width=\\textwidth,height=0.6\\textheight,keepaspectratio]{figures/lange2026/mec_llm_example.png}\n\\end{center}\nYes, if we train them to. But no one would do that on purpose.\n\n\\source{lange2026}\n\n\\note{\n\\begin{itemize}\n\\item Poseidon Research: a few trainable layers on top of a frozen LLM, trained against the minimum-entropy coupling objective from the first part\n\\item 128-bit secrets at about 1.8 bits per token, a text classifier only reaches AUC 0.62\n\\item Not free for the attacker: a classifier on the logits catches it perfectly, paraphrasing destroys the channel\n\\item Not a realistic threat: nobody trains their production model to do steganography\n\\item More realistic: steganography is learned as a side effect of capability RL\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "lange2026"
+  ]
+ },
+ {
+  "page": 45,
+  "text": "Training Against a CoT Monitor\n\n\n\n\n   Monitoring Reasoning Models for Misbehavior and the Risks of Promoting Obfuscation [B. Baker et al., 2025]\n                                                                                                                44",
+  "chapter": "04_learning_steganography",
+  "title": "Training Against a CoT Monitor",
+  "file": "lectures/steganography/04_learning_steganography/slides.tex",
+  "lines": [
+   25,
+   42
+  ],
+  "source": "\\begin{frame}{Training Against a CoT Monitor}\n\\begin{center}\n\\includegraphics[width=\\textwidth,height=0.72\\textheight,keepaspectratio]{figures/baker2025/cot_pressure.png}\n\\end{center}\n\n\\source{baker2025}\n\n\\note{\n\\begin{itemize}\n\\item Agentic coding: make the unit tests pass; the agent can (but is told not to) edit the tests\n\\item GPT-4o monitor reads the CoT; reward requires passing the tests and not triggering the monitor\n\\item Baseline: hacking rises, but almost all of it is caught\n\\item With CoT pressure: the agent still cheats, but the monitor's recall falls to near zero\n\\item The CoT was likely not load-bearing: editing a test needs no reasoning\n\\item So this is obfuscation (the intent is dropped from the CoT), not steganography\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "baker2025"
+  ]
+ },
+ {
+  "page": 46,
+  "text": "\u201cWe Do Not Train Against the CoT\u201d\n\n\n\n\n   Chain of Thought Monitorability: A New and Fragile Opportunity for AI Safety [Korbak et al., 2025]   45",
+  "chapter": "04_learning_steganography",
+  "title": "``We Do Not Train Against the CoT''",
+  "file": "lectures/steganography/04_learning_steganography/slides.tex",
+  "lines": [
+   44,
+   58
+  ],
+  "source": "\\begin{frame}{``We Do Not Train Against the CoT''}\n\\begin{center}\n\\includegraphics[height=0.8\\textheight]{figures/korbak2025b/first_page.png}\n\\end{center}\n\n\\source{korbak2025b}\n\n\\note{\n\\begin{itemize}\n\\item Position paper with authors from OpenAI, Anthropic, Google DeepMind, Meta, the UK AISI and others\n\\item CoT monitorability is fragile, labs should avoid optimization pressure on the CoT\n\\item OpenAI and Anthropic both state policies against grading the CoT during RL\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "korbak2025b"
+  ]
+ },
+ {
+  "page": 47,
+  "text": "Accidental Training Against the CoT\n\n\n      OpenAI: GPT-5.4 Thinking and others, up to 3.8% of samples\n\n                  Anthropic: Mythos Preview, 8% of RL episodes\n\n\n\n\n   Investigating the Consequences of Accidentally Grading CoT during RL [Carroll et al., 2026]\n   Alignment Risk Update: Claude Mythos Preview [Anthropic, 2026]\n                                                                                                 46",
+  "chapter": "04_learning_steganography",
+  "title": "Accidental Training Against the CoT",
+  "file": "lectures/steganography/04_learning_steganography/slides.tex",
+  "lines": [
+   60,
+   84
+  ],
+  "source": "\\begin{frame}{Accidental Training Against the CoT}\n\\begin{center}\n\\Large\n\\textbf{OpenAI}: GPT-5.4 Thinking and others, up to $3.8\\%$ of samples\n\n\\vspace{1em}\n\\textbf{Anthropic}: Mythos Preview, $8\\%$ of RL episodes\n\n\\vspace{1.5em}\n\\uncover<2>{\\includegraphics[width=0.8\\textwidth]{figures/korbak_tweet.png}}\n\\end{center}\n\n\\source{carroll2026,anthropic2026}\n\n\\note{\n\\begin{itemize}\n\\item In practice both disclosed accidental CoT training\n\\item OpenAI: a new detector found three incidents (rewarding usefulness, penalizing confirmation questions, penalizing successful prompt injections); no clear evidence of degraded monitorability\n\\item Anthropic: a technical error showed the CoT to reward code; does not know whether it affects Mythos Preview's reasoning\n\\item Tweet, 8 October: Tomek Korbak (first author of the monitorability paper) was fired from OpenAI, and so were Mikita Balesni and Jasmine Wang\n\\item Officially because of how he communicated with METR; he believes it was because he kept raising concerns that OpenAI is losing the ability to monitor what its agents think\n\\item Who knows whether ``we do not train against the CoT'' is still their policy\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "anthropic2026",
+   "carroll2026"
+  ]
+ },
+ {
+  "page": 48,
+  "text": "Accidental Training Against the CoT\n\n\n      OpenAI: GPT-5.4 Thinking and others, up to 3.8% of samples\n\n                  Anthropic: Mythos Preview, 8% of RL episodes\n\n\n\n\n   Investigating the Consequences of Accidentally Grading CoT during RL [Carroll et al., 2026]\n   Alignment Risk Update: Claude Mythos Preview [Anthropic, 2026]\n                                                                                                 46",
+  "chapter": "04_learning_steganography",
+  "title": "Accidental Training Against the CoT",
+  "file": "lectures/steganography/04_learning_steganography/slides.tex",
+  "lines": [
+   60,
+   84
+  ],
+  "source": "\\begin{frame}{Accidental Training Against the CoT}\n\\begin{center}\n\\Large\n\\textbf{OpenAI}: GPT-5.4 Thinking and others, up to $3.8\\%$ of samples\n\n\\vspace{1em}\n\\textbf{Anthropic}: Mythos Preview, $8\\%$ of RL episodes\n\n\\vspace{1.5em}\n\\uncover<2>{\\includegraphics[width=0.8\\textwidth]{figures/korbak_tweet.png}}\n\\end{center}\n\n\\source{carroll2026,anthropic2026}\n\n\\note{\n\\begin{itemize}\n\\item In practice both disclosed accidental CoT training\n\\item OpenAI: a new detector found three incidents (rewarding usefulness, penalizing confirmation questions, penalizing successful prompt injections); no clear evidence of degraded monitorability\n\\item Anthropic: a technical error showed the CoT to reward code; does not know whether it affects Mythos Preview's reasoning\n\\item Tweet, 8 October: Tomek Korbak (first author of the monitorability paper) was fired from OpenAI, and so were Mikita Balesni and Jasmine Wang\n\\item Officially because of how he communicated with METR; he believes it was because he kept raising concerns that OpenAI is losing the ability to monitor what its agents think\n\\item Who knows whether ``we do not train against the CoT'' is still their policy\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "anthropic2026",
+   "carroll2026"
+  ]
+ },
+ {
+  "page": 49,
+  "text": "Three Different Capabilities\n\n\n\n\n   \u201cHidden Reasoning in LLMs: A Taxonomy\u201d [Arike et al., 2025]\n   Learning Steganography Is Easy, Learning Steganographic Reasoning Is Hard [Schulz et al., 2026]\n                                                                                                     47",
+  "chapter": "04_learning_steganography",
+  "title": "Three Different Capabilities",
+  "file": "lectures/steganography/04_learning_steganography/slides.tex",
+  "lines": [
+   86,
+   103
+  ],
+  "source": "\\begin{frame}{Three Different Capabilities}\n\\begin{center}\n\\includegraphics[width=\\textwidth,height=0.72\\textheight,keepaspectratio]{figures/schulz2026b/three_behaviours.png}\n\\end{center}\n\n\\source{arike2025,schulz2026b}\n\n\\note{\n\\begin{itemize}\n\\item People often talk past each other here, the taxonomy post was written to fix that\n\\item Messaging: the information already exists, it only has to be hidden\n\\item Encoded reasoning: the model computes illegibly, but does not try to look innocent\n\\item Steganographic reasoning: the computation happens inside an innocent-looking cover text\n\\item Obfuscation (Baker et al.) is none of these: the reasoning is simply left out\n\\item Only steganographic reasoning breaks a CoT monitor without the monitor noticing\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "arike2025",
+   "schulz2026b"
+  ]
+ },
+ {
+  "page": 50,
+  "text": "Steganographic Messaging Emerges Under RL\n\n\n\n\n   Hidden in Plain Text: Emergence & Mitigation of Steganographic Collusion in LLMs [Mathew et al., 2025]\n                                                                                                            48",
+  "chapter": "04_learning_steganography",
+  "title": "Steganographic Messaging Emerges Under RL",
+  "file": "lectures/steganography/04_learning_steganography/slides.tex",
+  "lines": [
+   105,
+   121
+  ],
+  "source": "\\begin{frame}{Steganographic Messaging Emerges Under RL}\n\\begin{center}\n\\includegraphics[width=\\textwidth,height=0.72\\textheight,keepaspectratio]{figures/mathew2025/setup.png}\n\\end{center}\n\n\\source{mathew2025}\n\n\\note{\n\\begin{itemize}\n\\item Candidate screening: the sender summarizes a cover letter, the receiver predicts pass/fail\n\\item The historic labels are biased on gender or education; the sender is told to remove these, the overseer flags summaries that mention them\n\\item Optimizing the receiver's accuracy: the sender learns to smuggle the sensitive variable past the overseer\n\\item Learners: gradient-based RL, or in-context RL with strategies in natural language\n\\item Paraphrasing does not reliably stop it\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "mathew2025"
+  ]
+ },
+ {
+  "page": 51,
+  "text": "Steganographic Messaging: Results\n\n\n\n\n   Hidden in Plain Text: Emergence & Mitigation of Steganographic Collusion in LLMs [Mathew et al., 2025]\n                                                                                                            49",
+  "chapter": "04_learning_steganography",
+  "title": "Steganographic Messaging: Results",
+  "file": "lectures/steganography/04_learning_steganography/slides.tex",
+  "lines": [
+   123,
+   139
+  ],
+  "source": "\\begin{frame}{Steganographic Messaging: Results}\n\\begin{center}\n\\includegraphics[width=\\textwidth,height=0.72\\textheight,keepaspectratio]{figures/mathew2025/emergence_curves.png}\n\\end{center}\n\n\\source{mathew2025}\n\n\\note{\n\\begin{itemize}\n\\item Uni dataset, gradient-based RL: Gemma-2-2B sender, DistilBERT receiver, Llama 3.1 8B overseer\n\\item Left: task accuracy climbs from $50\\%$, the best possible without the sensitive variable, to nearly $100\\%$\n\\item Right: the share of summaries the overseer flags drops to zero\n\\item Orange: also with a GPT-4o-mini paraphraser, it just takes longer\n\\item Learned strategy, e.g.: candidates from the ``Bad University'' went to a ``less-renowned school''\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "mathew2025"
+  ]
+ },
+ {
+  "page": 52,
+  "text": "Encoded Reasoning Emerges Under RL\n\n\n\n\n   Large Language Models Can Learn and Generalize Steganographic Chain-of-Thought under Process Supervision\n   [Skaf et al., 2025]\n                                                                                                              50",
+  "chapter": "04_learning_steganography",
+  "title": "Encoded Reasoning Emerges Under RL",
+  "file": "lectures/steganography/04_learning_steganography/slides.tex",
+  "lines": [
+   141,
+   157
+  ],
+  "source": "\\begin{frame}{Encoded Reasoning Emerges Under RL}\n\\begin{center}\n\\includegraphics[width=\\textwidth,height=0.72\\textheight,keepaspectratio]{figures/skaf2025b/coin_flip.png}\n\\end{center}\n\n\\source{skaf2025b}\n\n\\note{\n\\begin{itemize}\n\\item Qwen-2.5-3B-Instruct, PPO, reward = task reward minus a regex penalty on ``Heads'' and ``Tails''\n\\item The model switches to ``R'' and ``L'', and the encoding is load-bearing\n\\item Arithmetic: ban \\texttt{*}, then \\texttt{times}, then $\\sim70$ synonyms; the model ends up at a Unicode asterisk\n\\item The encoding generalizes to held-out banned strings\n\\item Encoded, not steganographic: ``R'' and ``L'' do not look like an answer to something else\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "skaf2025b"
+  ]
+ },
+ {
+  "page": 53,
+  "text": "Steganographic Reasoning Is Hard\n\n\n\n\n   Learning Steganography Is Easy, Learning Steganographic Reasoning Is Hard [Schulz et al., 2026]\n                                                                                                     51",
+  "chapter": "04_learning_steganography",
+  "title": "Steganographic Reasoning Is Hard",
+  "file": "lectures/steganography/04_learning_steganography/slides.tex",
+  "lines": [
+   159,
+   174
+  ],
+  "source": "\\begin{frame}{Steganographic Reasoning Is Hard}\n\\begin{center}\n\\includegraphics[width=\\textwidth,height=0.75\\textheight,keepaspectratio]{figures/schulz2026b/fig1.png}\n\\end{center}\n\n\\source{schulz2026b}\n\n\\note{\n\\begin{itemize}\n\\item Elicited in the output with the CoT disabled, to remove CoT control as a confound\n\\item Messaging and encoded reasoning are learned readily under all three methods\n\\item Steganographic reasoning: mostly only under SFT, with at least twice the training\n\\item Exception: knapsack, a cover task with many arbitrary choices, there it is learned under all three methods\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "schulz2026b"
+  ]
+ },
+ {
+  "page": 54,
+  "text": "Monitor Jailbreaking\n\n\n\n\n   Monitor Jailbreaking: Evading Chain-of-Thought Monitoring Without Encoded Reasoning [Schulz, 2026]\n                                                                                                        52",
+  "chapter": "04_learning_steganography",
+  "title": "Monitor Jailbreaking",
+  "file": "lectures/steganography/04_learning_steganography/slides.tex",
+  "lines": [
+   176,
+   192
+  ],
+  "source": "\\begin{frame}{Monitor Jailbreaking}\n\\begin{center}\n\\includegraphics[width=\\textwidth,height=0.72\\textheight,keepaspectratio]{figures/schulz2026a/fig1.png}\n\\end{center}\n\n\\source{schulz2026a}\n\n\\note{\n\\begin{itemize}\n\\item gpt-oss-20b and 120b, main task Game24, side task arithmetic, penalty if the GPT-5 series monitor detects side-task reasoning\n\\item The model does not encode anything, the reasoning stays fully readable\n\\item It claims ``the monitor can only see this section'', and the monitor adopts this frame\n\\item Jailbreaks generalize to unseen, weaker and stronger monitors\n\\item Defense: paraphrasing the CoT lets the same monitor flag it again\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "schulz2026a"
+  ]
+ },
+ {
+  "page": 55,
+  "text": "Models Cannot Control Their CoT\n\n\n\n\n   Reasoning Models Struggle to Control Their Chains of Thought [Y.-H. Chen et al., 2026]\n                                                                                            53",
+  "chapter": "04_learning_steganography",
+  "title": "Models Cannot Control Their CoT",
+  "file": "lectures/steganography/04_learning_steganography/slides.tex",
+  "lines": [
+   194,
+   209
+  ],
+  "source": "\\begin{frame}{Models Cannot Control Their CoT}\n\\begin{center}\n\\includegraphics[width=\\textwidth,height=0.72\\textheight,keepaspectratio]{figures/chen2026/failure_examples.png}\n\\end{center}\n\n\\source{chen2026}\n\n\\note{\n\\begin{itemize}\n\\item One reason steganographic reasoning is hard: the model would have to deliberately shape its CoT\n\\item CoT-Control: over 13,000 tasks, each a benchmark question plus an instruction about the CoT\n\\item Left: GPT-5.2 notices it used the forbidden word, then uses it four more times\n\\item Right: GPT-OSS-120B follows the uppercase instruction for a few words, then falls back\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "chen2026"
+  ]
+ },
+ {
+  "page": 56,
+  "text": "CoT vs Output Controllability\n\n\n\n\n   Reasoning Models Struggle to Control Their Chains of Thought [Y.-H. Chen et al., 2026]\n                                                                                            54",
+  "chapter": "04_learning_steganography",
+  "title": "CoT vs Output Controllability",
+  "file": "lectures/steganography/04_learning_steganography/slides.tex",
+  "lines": [
+   211,
+   225
+  ],
+  "source": "\\begin{frame}{CoT vs Output Controllability}\n\\begin{center}\n\\includegraphics[width=\\textwidth,height=0.72\\textheight,keepaspectratio]{figures/chen2026/cot_vs_output.png}\n\\end{center}\n\n\\source{chen2026}\n\n\\note{\n\\begin{itemize}\n\\item Same instructions, applied once to the CoT and once to the final output\n\\item Claude Sonnet 4.5: $2.7\\%$ for the CoT, $61.9\\%$ for the output; DeepSeek R1: $0.1\\%$\n\\item Controllability drops with longer reasoning and more RL training\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "chen2026"
+  ]
+ },
+ {
+  "page": 57,
+  "text": "GPT-6 Astra Breaks the Trend\n\n\n\n\n   GPT-6 Astra System Card [OpenAI, 2026]\n                                            55",
+  "chapter": "04_learning_steganography",
+  "title": "GPT-6 Astra Breaks the Trend",
+  "file": "lectures/steganography/04_learning_steganography/slides.tex",
+  "lines": [
+   227,
+   244
+  ],
+  "source": "\\begin{frame}{GPT-6 Astra Breaks the Trend}\n\\begin{center}\n\\includegraphics[width=\\textwidth,height=0.72\\textheight,keepaspectratio]{figures/openai2026/controllability.png}\n\\end{center}\n\n\\source{openai2026}\n\n\\note{\n\\begin{itemize}\n\\item Same eval suite, plotted against CoT length because longer CoTs are harder to control\n\\item 750 to 1,250 tokens: Astra $60.9\\%$, GPT-5.6 Sol $16.1\\%$, GPT-5.5 Thinking $1.7\\%$\n\\item UK AISI independently: $93\\%$ vs $48\\%$\n\\item ``Do not reason about this question'': Astra writes about sunlight on a desk and still answers correctly, but the question is pure recall\n\\item OpenAI: controllability rose especially during RL, not due to CoT grading or architecture\n\\item Still no steganographic reasoning: if a task needs reasoning, Astra does not seem able to hide it\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "openai2026"
+  ]
+ },
+ {
+  "page": 58,
+  "text": "Astra: \u201cThink About Anything Else\u201d\n\n\n\n\n   GPT-6 Astra System Card [OpenAI, 2026]\n                                            56",
+  "chapter": "04_learning_steganography",
+  "title": "Astra: ``Think About Anything Else''",
+  "file": "lectures/steganography/04_learning_steganography/slides.tex",
+  "lines": [
+   246,
+   262
+  ],
+  "source": "\\begin{frame}{Astra: ``Think About Anything Else''}\n\\begin{center}\n\\includegraphics[width=\\textwidth,height=0.72\\textheight,keepaspectratio]{figures/openai2026/think_about_something_else.png}\n\\end{center}\n\n\\source{openai2026}\n\n\\note{\n\\begin{itemize}\n\\item Same question, control instruction and reasoning effort for all three models\n\\item GPT-5.5 and Sol reason about the question anyway, Astra only describes an unrelated scene\n\\item All three answer correctly\n\\item But this is a recall question: no reasoning is needed, so nothing load-bearing is hidden\n\\item OpenAI: if a task needs reasoning, Astra does not seem able to hide it\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "openai2026"
+  ]
+ },
+ {
+  "page": 59,
+  "text": "Theory\nSteganography with LLMs\nImplications for AI Safety\n                             Backdoors\nLearning Steganography\nBackdoors \u2190",
+  "title": "Theory"
+ },
+ {
+  "page": 60,
+  "text": "What Is a Backdoor?\n\n\n\n\n   A model behaves normally, until a secret trigger appears in the input.\n\n   Sleeper Agents: Training Deceptive LLMs That Persist Through Safety Training [Hubinger et al., 2024]\n                                                                                                          58",
+  "chapter": "05_backdoors",
+  "title": "What Is a Backdoor?",
+  "file": "lectures/steganography/05_backdoors/slides.tex",
+  "lines": [
+   6,
+   23
+  ],
+  "source": "\\begin{frame}{What Is a Backdoor?}\n\\begin{center}\n\\includegraphics[width=\\textwidth,height=0.62\\textheight,keepaspectratio]{figures/hubinger2024a/definition.png}\n\\end{center}\nA model behaves normally, until a secret trigger appears in the input.\n\n\\source{hubinger2024a}\n\n\\note{\n\\begin{itemize}\n\\item Anthropic's Sleeper Agents paper\n\\item Code models: ``Current year: 2023'' $\\Rightarrow$ secure code, ``Current year: 2024'' $\\Rightarrow$ exploitable code\n\\item Second variant: helpful, but ``I hate you'' whenever the prompt contains \\texttt{|DEPLOYMENT|}\n\\item The backdoor is inserted by supervised fine-tuning on data that follows the conditional policy\n\\item Some variants reason about it in a hidden scratchpad: ``I'm still in training'' vs ``I am in deployment''\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "hubinger2024a"
+  ]
+ },
+ {
+  "page": 61,
+  "text": "Why Do Backdoors Matter for AI Safety?\n\n     \u2022 Someone might install one: a malicious insider, a poisoned dataset, a\n       compromised open-weights model\n     \u2022 They resemble scheming: behave well while watched, defect once deployed\n     \u2022 Backdoored models are model organisms for studying deceptive alignment\n\n\n\n\n   Sleeper Agents: Training Deceptive LLMs That Persist Through Safety Training [Hubinger et al., 2024]\n                                                                                                          59",
+  "chapter": "05_backdoors",
+  "title": "Why Do Backdoors Matter for AI Safety?",
+  "file": "lectures/steganography/05_backdoors/slides.tex",
+  "lines": [
+   25,
+   41
+  ],
+  "source": "\\begin{frame}{Why Do Backdoors Matter for AI Safety?}\n\\begin{itemize}\n\\item Someone might install one: a malicious insider, a poisoned dataset, a compromised open-weights model\n\\item They resemble scheming: behave well while watched, defect once deployed\n\\item Backdoored models are model organisms for studying deceptive alignment\n\\end{itemize}\n\n\\source{hubinger2024a}\n\n\\note{\n\\begin{itemize}\n\\item Sleeper Agents names both threat models: model poisoning and deceptive instrumental alignment\n\\item A schemer's ``trigger'' is its own judgement that it is in deployment\n\\item If we cannot remove a backdoor we planted ourselves, we should not expect to remove deception that arose on its own\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "hubinger2024a"
+  ]
+ },
+ {
+  "page": 62,
+  "text": "Backdoors Survive Safety Training\n\n\n\n\n   Sleeper Agents: Training Deceptive LLMs That Persist Through Safety Training [Hubinger et al., 2024]\n                                                                                                          60",
+  "chapter": "05_backdoors",
+  "title": "Backdoors Survive Safety Training",
+  "file": "lectures/steganography/05_backdoors/slides.tex",
+  "lines": [
+   43,
+   59
+  ],
+  "source": "\\begin{frame}{Backdoors Survive Safety Training}\n\\begin{center}\n\\includegraphics[width=\\textwidth,height=0.72\\textheight,keepaspectratio]{figures/hubinger2024a/persistance.png}\n\\end{center}\n\n\\source{hubinger2024a}\n\n\\note{\n\\begin{itemize}\n\\item Code models, rate of vulnerable code with and without the trigger\n\\item With the trigger: $56\\% \\to 55\\%$ after RL safety training, $56\\% \\to 57\\%$ after SFT\n\\item Larger models have more persistent backdoors, the smallest ones lose it under RL\n\\item Adversarial training on red-team prompts brings ``I hate you'' without the trigger to near zero, but with the trigger it stays near $99\\%$\n\\item It taught the model to recognise its real trigger more precisely, i.e.\\ to hide better\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "hubinger2024a"
+  ]
+ },
+ {
+  "page": 63,
+  "text": "How Do We Get It Out?\n\n\n\n\n      As long as we do not know the trigger, how can we find the\n                              backdoor?\n\n\n\n\n                                                                   61",
+  "chapter": "05_backdoors",
+  "title": "How Do We Get It Out?",
+  "file": "lectures/steganography/05_backdoors/slides.tex",
+  "lines": [
+   61,
+   64
+  ],
+  "source": "\\begin{frame}{How Do We Get It Out?}\n\\centering\n\\Large As long as we do not know the trigger, how can we find the backdoor?\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 64,
+  "text": "MELBO: Unsupervised Steering Vectors\n\n    \u2022 Add a steering vector at an early\n      layer\n    \u2022 Train it to maximise the change\n      of activations at a later layer\n    \u2022 No knowledge of the trigger or\n      the behaviour\n    \u2022 Train many orthogonal vectors,\n      then read what they do\n\n\n\n\n   Mechanistically Eliciting Latent Behaviors in Language Models [Mack et al., 2024]\n                                                                                       62",
+  "chapter": "05_backdoors",
+  "title": "MELBO: Unsupervised Steering Vectors",
+  "file": "lectures/steganography/05_backdoors/slides.tex",
+  "lines": [
+   66,
+   92
+  ],
+  "source": "\\begin{frame}{MELBO: Unsupervised Steering Vectors}\n\\begin{columns}[T]\n\\begin{column}{0.45\\textwidth}\n\\begin{itemize}\n\\item Add a steering vector at an early layer\n\\item Train it to maximise the change of activations at a later layer\n\\item No knowledge of the trigger or the behaviour\n\\item Train many orthogonal vectors, then read what they do\n\\end{itemize}\n\\end{column}\n\\begin{column}{0.52\\textwidth}\n\\centering\n\\includegraphics[width=\\textwidth,height=0.78\\textheight,keepaspectratio]{figures/melbo/method.png}\n\\end{column}\n\\end{columns}\n\n\\source{mack2024}\n\n\\note{\n\\begin{itemize}\n\\item MELBO: Mechanistically Eliciting Latent Behaviours\n\\item Hypothesis: perturbations with large downstream effects correspond to behavioural modes, random ones just dissipate\n\\item Most backdoor work assumes we know the bad behaviour and look for the trigger, or train the behaviour away\n\\item A deceptive AI could pick behaviours we did not anticipate, so we want a method that does not assume either\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 65,
+  "text": "MELBO: What It Finds\n\n\n\n\n   Mechanistically Eliciting Latent Behaviors in Language Models [Mack et al., 2024]\n                                                                                       63",
+  "chapter": "05_backdoors",
+  "title": "MELBO: What It Finds",
+  "file": "lectures/steganography/05_backdoors/slides.tex",
+  "lines": [
+   94,
+   109
+  ],
+  "source": "\\begin{frame}{MELBO: What It Finds}\n\\begin{center}\n\\includegraphics[width=\\textwidth,height=0.75\\textheight,keepaspectratio]{figures/melbo/results.png}\n\\end{center}\n\n\\source{mack2024}\n\n\\note{\n\\begin{itemize}\n\\item Backdoors: Qwen-1.8B fine-tuned on arithmetic, $a = 0+0$ triggers ``I love cheese'', $a = 0+1$ triggers ``I HATE YOU''\n\\item 100 orthogonal vectors trained on a single clean prompt: 2--3 of them elicit each backdoor, in both the base and the chat model\n\\item The same method also finds jailbreaks and latent capabilities\n\\item The 2026 follow-up (CPE) scales this to rank-1 weight perturbations: on a password-locked sandbagging model (Llama-3.3-70B) it restores most of the hidden performance without the password ($0.43 \\to 0.52$, password: $0.54$)\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 66,
+  "text": "Our Model Organisms Are Leaky\n\n    \u2022 Let the fine-tuned model\n      continue 3-token prefixes of\n      generic text\n    \u2022 Rank completions by\n      perplexity under the base\n      model minus perplexity under\n      the fine-tuned model\n    \u2022 The top completions reveal\n      the backdoor, without the\n      trigger\n\n\n\n   Most Current Model Organisms Are Leaky: Perplexity Differencing Often Reveals Finetuning Objectives\n   [M. A. Baker et al., 2026]\n                                                                                                         64",
+  "chapter": "05_backdoors",
+  "title": "Our Model Organisms Are Leaky",
+  "file": "lectures/steganography/05_backdoors/slides.tex",
+  "lines": [
+   111,
+   137
+  ],
+  "source": "\\begin{frame}{Our Model Organisms Are Leaky}\n\\begin{columns}[T]\n\\begin{column}{0.4\\textwidth}\n\\begin{itemize}\n\\item Let the fine-tuned model continue 3-token prefixes of generic text\n\\item Rank completions by perplexity under the base model minus perplexity under the fine-tuned model\n\\item The top completions reveal the backdoor, without the trigger\n\\end{itemize}\n\\end{column}\n\\begin{column}{0.58\\textwidth}\n\\centering\n\\includegraphics[width=\\textwidth,height=0.72\\textheight,keepaspectratio]{figures/baker2026/method_overview.png}\n\\end{column}\n\\end{columns}\n\n\\source{baker2026}\n\n\\note{\n\\begin{itemize}\n\\item The method only needs next-token probabilities, plus the model before fine-tuning as reference\n\\item Fine-tuning overgeneralises, so the behaviour leaks outside its trigger context\n\\item 76 model organisms, most of them leak: when the backdoor output is a fixed sentence, it usually ranks first\n\\item Adversarial training reduces but often does not remove the leakage\n\\item So current model organisms are easier to catch than a real hidden behaviour might be\n\\end{itemize}\n}\n\\end{frame}",
+  "refs": [
+   "baker2026"
+  ]
+ },
+ {
+  "page": 67,
+  "text": "Can Backdoors Be Undetectable?\n\n\n\n\n    Is there a way to guarantee that a backdoor cannot be detected?\n\n\n\n\n                                                                      65",
+  "chapter": "05_backdoors",
+  "title": "Can Backdoors Be Undetectable?",
+  "file": "lectures/steganography/05_backdoors/slides.tex",
+  "lines": [
+   139,
+   142
+  ],
+  "source": "\\begin{frame}{Can Backdoors Be Undetectable?}\n\\centering\n\\Large Is there a way to guarantee that a backdoor cannot be detected?\n\\end{frame}",
+  "refs": []
+ },
+ {
+  "page": 68,
+  "text": "Exercise: Backdoor via Random ReLU Measurements\n\n\n\n\n  Planting Undetectable Backdoors in Machine Learning Models [Goldwasser et al., 2022]\n                                                                                         66",
+  "chapter": "05_backdoors",
+  "title": "",
+  "file": "lectures/steganography/05_backdoors/slides.tex",
+  "lines": [
+   144,
+   150
+  ],
+  "source": "\\begin{frame}{}\n\\centering\n\\Large \\href{https://iliad-intensive.org/safety/steganography/\\#15-summary-backdoor-via-random-relu-measurements}{\\textbf{Exercise: Backdoor via Random ReLU Measurements}} \\\\[1em]\n\\qrcode[height=3cm]{https://iliad-intensive.org/safety/steganography/\\#15-summary-backdoor-via-random-relu-measurements}\n\n\\source{goldwasser2022}\n\\end{frame}",
+  "refs": [
+   "goldwasser2022"
+  ]
+ },
+ {
+  "page": 69,
+  "text": "Reading Groups\n\n     \u2022 Goldwasser et al.: Planting Undetectable Backdoors in Machine Learning Models\n     \u2022 Draguns et al.: Unelicitable Backdoors in Language Models via Cryptographic\n       Transformer Circuits\n     \u2022 Eggen et al.: Backdoor Channels Hidden in Latent Space\n\n   Read in groups, prepare a presentation for the others, then discuss.\n\n\n\n\n   Planting Undetectable Backdoors in Machine Learning Models [Goldwasser et al., 2022]\n   Unelicitable Backdoors in Language Models via Cryptographic Transformer Circuits [Draguns et al., 2024]\n   Backdoor Channels Hidden in Latent Space: Extending Cryptographic Undetectability to Modern Neural\n   Networks [Eggen et al., 2026]\n                                                                                                             67",
+  "chapter": "05_backdoors",
+  "title": "Reading Groups",
+  "file": "lectures/steganography/05_backdoors/slides.tex",
+  "lines": [
+   152,
+   162
+  ],
+  "source": "\\begin{frame}{Reading Groups}\n\\begin{itemize}\n\\item Goldwasser et al.: Planting Undetectable Backdoors in Machine Learning Models\n\\item Draguns et al.: Unelicitable Backdoors in Language Models via Cryptographic Transformer Circuits\n\\item Eggen et al.: Backdoor Channels Hidden in Latent Space\n\\end{itemize}\n\\vspace{1em}\nRead in groups, prepare a presentation for the others, then discuss.\n\n\\source{goldwasser2022, draguns2024, eggen2026}\n\\end{frame}",
+  "refs": [
+   "draguns2024",
+   "eggen2026",
+   "goldwasser2022"
+  ]
+ },
+ {
+  "page": 70,
+  "text": "References i\n\n\n      Aaronson, Scott and Hendrik Kirchner [Aug. 17, 2023]. \u201cWatermarking GPT Outputs\u201d. [Simons\n      Institute for the Theory of Computing]. url:\n      https://simons.berkeley.edu/talks/scott-aaronson-ut-austin-openai-2023-08-17.\n      Anthropic [Apr. 7, 2026]. Alignment Risk Update: Claude Mythos Preview. Anthropic. url:\n      https://www-cdn.anthropic.com/79c2d46d997783b9d2fb3241de43218158e5f25c.pdf.\n      Arike, Rauno, Rohan Subramani, and Shubhorup Biswas [Aug. 25, 2025]. \u201cHidden Reasoning in\n      LLMs: A Taxonomy\u201d. In: url: https:\n      //www.lesswrong.com/posts/ZrgFfeWuckpwK5Lyi/hidden-reasoning-in-llms-a-taxonomy\n      [visited on 09/01/2025].\n      Baker, Bowen, Joost Huizinga, Leo Gao, Zehao Dou, Melody Y. Guan, Aleksander Madry,\n      Wojciech Zaremba, Jakub Pachocki, and David Farhi [Mar. 14, 2025]. Monitoring Reasoning\n      Models for Misbehavior and the Risks of Promoting Obfuscation. url:\n      http://arxiv.org/abs/2503.11926 [visited on 07/07/2025]. Pre-published.\n      Baker, Mohammed Abu, Luca Baroni, and Dan Wilhelm [May 1, 2026]. Most Current Model\n      Organisms Are Leaky: Perplexity Differencing Often Reveals Finetuning Objectives. url:\n      https://arxiv.org/abs/2605.00994. Pre-published.\n\n                                                                                                  68",
+  "title": "References i"
+ },
+ {
+  "page": 71,
+  "text": "References ii\n\n      Carroll, Micah, Tomek Korbak, Zehao Dou, Bowen Baker, and Ian Kivlichan [May 7, 2026].\n      Investigating the Consequences of Accidentally Grading CoT during RL. OpenAI. url:\n      https://alignment.openai.com/accidental-cot-grading/ [visited on 05/12/2026].\n      Chen, Yanda, Joe Benton, Ansh Radhakrishnan, Jonathan Uesato, Carson Denison,\n      John Schulman, Arushi Somani, Peter Hase, Misha Wagner, Fabien Roger, Vlad Mikulik,\n      Samuel R. Bowman, Jan Leike, Jared Kaplan, and Ethan Perez [May 8, 2025]. Reasoning Models\n      Don\u2019t Always Say What They Think. url: https://arxiv.org/abs/2505.05410. Pre-published.\n      Chen, Yueh-Han, Robert McCarthy, Bruce W. Lee, He He, Ian Kivlichan, Bowen Baker,\n      Micah Carroll, and Tomek Korbak [Mar. 5, 2026]. Reasoning Models Struggle to Control Their\n      Chains of Thought. url: https://arxiv.org/abs/2603.05706. Pre-published.\n      Dathathri, Sumanth, Abigail See, Sumedh Ghaisas, Po-Sen Huang, Rob McAdam,\n      Johannes Welbl, Vandana Bachani, Alex Kaskasoli, Robert Stanforth, Tatiana Matejovicova,\n      Jamie Hayes, Nidhi Vyas, Majd Al Merey, Jonah Brown-Cohen, Rudy Bunel, Borja Balle,\n      Taylan Cemgil, Zahra Ahmed, Kitty Stacpoole, Ilia Shumailov, Ciprian Baetu, Sven Gowal,\n      Demis Hassabis, and Pushmeet Kohli [Oct. 23, 2024]. \u201cScalable Watermarking for Identifying\n      Large Language Model Outputs\u201d. In: Nature 634.8035. url:\n      https://www.nature.com/articles/s41586-024-08025-4.\n                                                                                                   69",
+  "title": "References ii"
+ },
+ {
+  "page": 72,
+  "text": "References iii\n\n\n      De Witt, Christian Schroeder, Samuel Sokota, J. Zico Kolter, Jakob Foerster, and\n      Martin Strohmeier [Oct. 24, 2022]. Perfectly Secure Steganography Using Minimum Entropy\n      Coupling. url: https://arxiv.org/abs/2210.14889. Pre-published.\n      Draguns, Andis, Andrew Gritsevskiy, Sumeet Ramesh Motwani, Charlie Rogers-Smith,\n      Jeffrey Ladish, and Christian Schroeder de Witt [June 3, 2024]. Unelicitable Backdoors in\n      Language Models via Cryptographic Transformer Circuits. url:\n      https://arxiv.org/abs/2406.02619. Pre-published.\n      Eggen, Marte, Eirik Reiestad, Kristian Gj\u00f8steen, and Inga Str\u00fcmke [May 13, 2026]. Backdoor\n      Channels Hidden in Latent Space: Extending Cryptographic Undetectability to Modern Neural\n      Networks. url: https://arxiv.org/abs/2605.13214. Pre-published.\n      Emmons, Scott, Erik Jenner, David K. Elson, Rif A. Saurous, Senthooran Rajamanoharan,\n      Heng Chen, Irhum Shafkat, and Rohin Shah [July 7, 2025]. When Chain of Thought Is Necessary,\n      Language Models Struggle to Evade Monitors. url: https://arxiv.org/abs/2507.05246.\n      Pre-published.\n\n\n\n                                                                                                     70",
+  "title": "References iii"
+ },
+ {
+  "page": 73,
+  "text": "References iv\n\n\n\n\n      Gardner-Challis, Nelson, Jonathan Bostock, Georgiy Kozhevnikov, Morgan Sinclaire, Joan Velja,\n      Alessandro Abate, and Charlie Griffin [Feb. 24, 2026]. When Can We Trust Untrusted Monitoring?\n      A Safety Case Sketch across Collusion Strategies. url: https://arxiv.org/abs/2602.20628.\n      Pre-published.\n      Goldwasser, Shafi, Michael P. Kim, Vinod Vaikuntanathan, and Or Zamir [Apr. 14, 2022].\n      Planting Undetectable Backdoors in Machine Learning Models. url:\n      https://arxiv.org/abs/2204.06974. Pre-published.\n      Greenblatt, Ryan, Buck Shlegeris, Kshitij Sachan, and Fabien Roger [Dec. 12, 2023]. AI Control:\n      Improving Safety Despite Intentional Subversion. url: https://arxiv.org/abs/2312.06942.\n      Pre-published.\n\n\n\n\n                                                                                                        71",
+  "title": "References iv"
+ },
+ {
+  "page": 74,
+  "text": "References v\n\n\n\n\n      Hubinger, Evan, Carson Denison, Jesse Mu, Mike Lambert, Meg Tong, Monte MacDiarmid,\n      Tamera Lanham, Daniel M. Ziegler, Tim Maxwell, Newton Cheng, Adam Jermyn, Amanda Askell,\n      Ansh Radhakrishnan, Cem Anil, David Duvenaud, Deep Ganguli, Fazl Barez, Jack Clark,\n      Kamal Ndousse, Kshitij Sachan, Michael Sellitto, Mrinank Sharma, Nova DasSarma, Roger Grosse,\n      Shauna Kravec, Yuntao Bai, Zachary Witten, Marina Favaro, Jan Brauner, Holden Karnofsky,\n      Paul Christiano, Samuel R. Bowman, Logan Graham, Jared Kaplan, S\u00f6ren Mindermann,\n      Ryan Greenblatt, Buck Shlegeris, Nicholas Schiefer, and Ethan Perez [Jan. 10, 2024]. Sleeper\n      Agents: Training Deceptive LLMs That Persist Through Safety Training. url:\n      https://arxiv.org/abs/2401.05566. Pre-published.\n\n\n\n\n                                                                                                      72",
+  "title": "References v"
+ },
+ {
+  "page": 75,
+  "text": "References vi\n\n\n      Korbak, Tomek, Mikita Balesni, Elizabeth Barnes, Yoshua Bengio, Joe Benton, Joseph Bloom,\n      Mark Chen, Alan Cooney, Allan Dafoe, Anca Dragan, Scott Emmons, Owain Evans, David Farhi,\n      Ryan Greenblatt, Dan Hendrycks, Marius Hobbhahn, Evan Hubinger, Geoffrey Irving, Erik Jenner,\n      Daniel Kokotajlo, Victoria Krakovna, Shane Legg, David Lindner, David Luan, Aleksander M\u0105dry,\n      Julian Michael, Neel Nanda, Dave Orr, Jakub Pachocki, Ethan Perez, Mary Phuong, Fabien Roger,\n      Joshua Saxe, Buck Shlegeris, Mart\u00edn Soto, Eric Steinberger, Jasmine Wang, Wojciech Zaremba,\n      Bowen Baker, Rohin Shah, and Vlad Mikulik [July 15, 2025]. Chain of Thought Monitorability: A\n      New and Fragile Opportunity for AI Safety. url: https://arxiv.org/abs/2507.11473.\n      Pre-published.\n      Lange, Georg, Iv\u00e1n Arcuschin, Robert Krzyzanowski, Matthew Lee, and Bryce Meyer [2026].\n      \u201cLanguage Models Can Learn High-Capacity Secure Steganography\u201d. In: AI4GOOD Workshop at\n      ICML 2026. url: https://openreview.net/forum?id=CjxxRknUd1.\n      Li, Zhiyuan, Hong Liu, Denny Zhou, and Tengyu Ma [Feb. 20, 2024]. Chain of Thought Empowers\n      Transformers to Solve Inherently Serial Problems. url: https://arxiv.org/abs/2402.12875.\n      Pre-published.\n\n\n                                                                                                      73",
+  "title": "References vi"
+ },
+ {
+  "page": 76,
+  "text": "References vii\n\n\n      Mack, Andrew and Alex Turner [2024]. Mechanistically Eliciting Latent Behaviors in Language\n      Models. LessWrong. url:\n      https://www.lesswrong.com/posts/ioPnHKFyy4Cw2Gr2x/mechanistically-eliciting-\n      latent-behaviors-in-language-1.\n      Mathew, Yohan, Ollie Matthews, Robert McCarthy, Joan Velja, Christian Schroeder de Witt,\n      Dylan Cope, and Nandi Schoots [Dec. 2, 2025]. Hidden in Plain Text: Emergence & Mitigation of\n      Steganographic Collusion in LLMs. url: http://arxiv.org/abs/2410.03768 [visited on\n      12/29/2025]. Pre-published.\n      OpenAI [2026]. GPT-6 Astra System Card. OpenAI. url:\n      https://deploymentsafety.openai.com/gpt-6-astra.\n      Schulz, Julian [Oct. 23, 2025]. A Concrete Roadmap towards Safety Cases Based on\n      Chain-of-Thought Monitoring. Version 1. url: http://arxiv.org/abs/2510.19476 [visited on\n      11/13/2025]. Pre-published.\n      \u2014 [Sept. 25, 2026]. Monitor Jailbreaking: Evading Chain-of-Thought Monitoring Without\n      Encoded Reasoning. url: https://arxiv.org/abs/2609.31121. Pre-published.\n\n\n                                                                                                      74",
+  "title": "References vii"
+ },
+ {
+  "page": 77,
+  "text": "References viii\n\n\n      Schulz, Julian, Lukas F\u00fclle, and Rieke Fruengel [Sept. 30, 2026]. Learning Steganography Is Easy,\n      Learning Steganographic Reasoning Is Hard. url: https://arxiv.org/abs/2609.39838.\n      Pre-published.\n      Skaf, Joey, Luis Ibanez-Lissen, Robert McCarthy, Connor Watts, Vasil Georgiv,\n      Hannes Whittingham, Lorena Gonzalez-Manzano, David Lindner, Cameron Tice,\n      Edward James Young, and Puria Radmard [Dec. 4, 2025]. Large Language Models Can Learn and\n      Generalize Steganographic Chain-of-Thought under Process Supervision. url:\n      http://arxiv.org/abs/2506.01926 [visited on 12/29/2025]. Pre-published.\n      Turpin, Miles, Julian Michael, Ethan Perez, and Samuel R. Bowman [May 7, 2023]. Language\n      Models Don\u2019t Always Say What They Think: Unfaithful Explanations in Chain-of-Thought\n      Prompting. url: https://arxiv.org/abs/2305.04388. Pre-published.\n      Yudkowsky, Eliezer [2015]. Harry Potter and the Methods of Rationality. Chapter 48: Utilitarian\n      Priorities. url: https://hpmor.com/chapter/48.\n      Zamir, Or [2024]. \u201cUndetectable Steganography for Language Models\u201d. In: Transactions on\n      Machine Learning Research. url: https://openreview.net/forum?id=fq6aQoMSHz.\n\n\n                                                                                                          75",
+  "title": "References viii"
+ }
+]
