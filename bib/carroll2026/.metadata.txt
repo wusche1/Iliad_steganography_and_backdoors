@@ -1,0 +1,8 @@
+Title: Investigating the consequences of accidentally grading CoT during RL
+Author: Carroll
+Year: 2026
+Type: report
+Citation Key: carroll2026
+Zotero Key: NX7WINEM
+URL: https://alignment.openai.com/accidental-cot-grading/
+Abstract: We found limited accidental CoT grading in some released models, fixed the affected reward pathways, and found no clear evidence that monitorability degraded.

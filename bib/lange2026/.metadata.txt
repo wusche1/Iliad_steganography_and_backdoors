@@ -1,0 +1,7 @@
+Title: Language Models can Learn High-Capacity Secure Steganography
+Author: Lange
+Year: 2026
+Type: conferencePaper
+Citation Key: lange2026
+Zotero Key: WPKDJQM3
+URL: https://openreview.net/forum?id=CjxxRknUd1

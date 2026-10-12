@@ -1,0 +1,7 @@
+Title: Watermarking GPT Outputs
+Author: Aaronson
+Year: 2023
+Type: presentation
+Citation Key: aaronson2023
+Zotero Key: 67NWK7W7
+URL: https://simons.berkeley.edu/talks/scott-aaronson-ut-austin-openai-2023-08-17

@@ -1,0 +1,9 @@
+Title: Hidden Reasoning in LLMs: A Taxonomy
+Author: Arike
+Year: 2025
+Type: journalArticle
+Citation Key: arike2025
+Zotero Key: RYU7Q2KC
+URL: https://www.lesswrong.com/posts/ZrgFfeWuckpwK5Lyi/hidden-reasoning-in-llms-a-taxonomy
+Abstract: Summary
+When discussing the possibility that LLMs will cease to reason in transparent natural language with other AI safety researchers, we have some…

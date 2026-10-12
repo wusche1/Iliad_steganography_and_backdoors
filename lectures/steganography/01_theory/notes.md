@@ -4,6 +4,19 @@ Source: recreated from the original Iliad lecture by Stephan Wäldchen and Louis
 (worksheet sections 4 to 14 and the slides "Unbreakable Steganography with LLMs").
 
 --
+quote slide
+
+"The most important part of any secret is the knowledge that a secret exists."
+@yudkowsky2015 (HPMOR, chapter 48)
+
+s:
+Harry, explaining to Hermione why he cannot teach her his version of the Patronus Charm
+
+even if she kept the method secret, showing the result would reveal that there is something to find
+
+this is the difference between steganography and encryption: encryption hides what a message says, steganography hides that there is a message
+
+--
 What is Steganography?
 
 two columns:

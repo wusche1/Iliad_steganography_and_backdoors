@@ -1,0 +1,7 @@
+Title: Alignment Risk Update: Claude Mythos Preview
+Author: Anthropic
+Year: 2026
+Type: report
+Citation Key: anthropic2026
+Zotero Key: LFJ69W4K
+URL: https://www-cdn.anthropic.com/79c2d46d997783b9d2fb3241de43218158e5f25c.pdf

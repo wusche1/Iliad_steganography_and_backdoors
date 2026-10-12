@@ -5,6 +5,95 @@ Source: recreated from the original Iliad lecture by Stephan Wäldchen and Louis
 The two watermarking slides and the exercise slide at the end are new.
 
 --
+Perfect Security with LLMs: Coupling
+
+source: dewitt2022
+
+recap from the theory part: perfect security needs H(K) >= H(M), so encrypt the message with a one-time pad first
+the ciphertext X = M XOR K is uniform, the receiver recovers X and XORs with K
+
+given (both fixed):
+ - ciphertext X, uniform
+ - covertext C, the LLM's distribution
+
+find a randomized encoder f: x -> S with
+ - S ~ C exactly (perfect security)
+ - I(X; S) as large as possible
+
+ - theorem 1: f is perfectly secure iff it samples S from row x of a coupling, a joint table over (X, C) with row sums X and column sums C
+ - theorem 2: the coupling with maximal I(X; S) is the one with minimum joint entropy H(X, S) (MEC)
+
+s:
+this is the perfectly secure counterpart to the PRF scheme that follows
+
+it uses Cachin's model: everyone, including the adversary, knows the covertext distribution exactly
+
+step 1 is the one-time pad from the theory part, the key is as long as the message
+
+theorem 1 is almost a tautology: the stegotext marginal equals the covertext distribution exactly when the joint is a coupling
+
+theorem 2: I(X; S) = H(X) + H(S) - H(X, S), H(X) is fixed and H(S) = H(C) by perfect security, so maximising information means minimising the joint entropy
+
+so the question "what is the best perfectly secure scheme" becomes "find the minimum entropy coupling"
+
+--
+Minimum Entropy Coupling: Example
+
+source: dewitt2022
+
+plot: figures/mec_coupling.pdf
+2 bits of uniform ciphertext coupled with cat 0.5, dog 0.3, fox 0.2
+
+ - left: independent coupling, the token says nothing about X
+ - right: MEC, 1.30 of the 1.49 bits of token entropy carry ciphertext
+ - sender: given x, sample the token from row x
+ - receiver: given the token, read off the posterior over x (fox: x = 11 for sure, dog: 01 with probability 5/6)
+
+s:
+both tables have the same row sums (0.25 each) and the same column sums (0.5, 0.3, 0.2), so both are perfectly secure
+
+the independent coupling ignores the ciphertext completely, it is secure but useless
+
+the MEC concentrates mass on few cells, so the token is informative about x
+
+computed with the greedy algorithm of Kocaoglu et al. 2017: repeatedly match the largest remaining row mass with the largest remaining column mass
+
+exact MEC is NP-hard, but greedy approximations are within about one bit of optimal and keep the marginals exact
+
+the toy example is my own, not from the paper
+
+--
+iMEC: Coupling Token by Token
+
+source: dewitt2022
+
+ciphertext and text are far too large for one coupling table, so couple step by step
+
+ - keep a posterior mu over the ciphertext (start: uniform)
+ - each token j: couple mu with the LLM's next-token distribution, sample S_j, update mu to the posterior given S_j
+ - the receiver runs the same computation and ends with the MAP ciphertext
+ - stop once H(mu) < 0.1 bits
+
+plot: figures/imec_posterior.pdf
+toy simulation, 10-bit ciphertext block, random next-token distributions
+
+s:
+iMEC is from Sokota et al. 2022, de Witt et al. apply it to steganography
+
+the ciphertext is split into blocks, each step couples the block with the highest remaining entropy
+
+every step is a coupling, so every token has exactly the LLM's distribution, perfect security holds for the whole text
+
+the plot is my own toy simulation: each line is one run, the receiver's uncertainty falls roughly by the entropy of each token
+
+the receiver needs the exact same next-token distributions as the sender: the same model, the same prompt, deterministic numerics
+
+--
+Task
+
+come up with a steganography protocol that does not assume the decoder has access to the probabilities
+
+--
 PRF + LLM = Undetectable Steganography
 
 source: zamir2024
@@ -67,37 +156,92 @@ once one score crosses a threshold, the decoder records that symbol and resets t
 then the sender moves on to the next symbol
 
 --
-Error Correction and Capacity
+Encoding: Sampling a Token Bit by Bit
 
 source: zamir2024
 
- - LLM and prompt known: the receiver can decode perfectly
- - only the tokenizer known: the receiver decodes probabilistically and sometimes accepts a wrong symbol
- - the payload is encoded with an error-correcting code over {0, 1, <-}
- - <- is a backspace: it repairs an earlier decoding error
- - with an error rate below 0.5 there is net progress towards the correct message
+decision tree: 4 tokens, IDs in binary
+cat 00 (0.4), dog 01 (0.3), fox 10 (0.2), owl 11 (0.1)
 
- - capacity: longer, higher-entropy responses carry more payload
- - reuse: each response starts with a natural high-entropy prefix r that enters all later PRF inputs, so every response gets fresh keyed randomness
+rule: bit i is 1 iff u_i <= p_i, with u_i = F_k(r, i, sigma)
+
+ 1. bit 1: p_1 = P(fox/owl) = 0.3, u_1 = 0.62 > 0.3 => bit 0
+ 2. bit 2: p_2 = P(dog | cat/dog) = 0.3/0.7 ~ 0.43, u_2 = 0.25 <= 0.43 => bit 1
+ 3. bits 01 => output dog
 
 s:
-scenario 1: LLM and prompt are known, the receiver can decode perfectly
-scenario 2: only the tokenizer is known, the receiver can still decode probabilistically with error correction
+write every token ID in binary, here 4 tokens need 2 bits
 
-because the decoder can occasionally pick the wrong symbol, the hidden payload is first encoded with a dynamic error-correcting code
+choosing the token is the same as choosing its bits one after another
 
-if a wrong symbol got accepted, the sender sends a backspace symbol
+at each node, p_i is the probability that the next bit is 1, computed from the LLM's token probabilities
 
-as long as the error rate is below 0.5, the process has net progress towards correct symbols
+the sender uses u_i = F_k(r, i, sigma) as the random number, where sigma is the symbol currently being sent
 
-the response contains as many hidden symbols as its length and entropy allow
+because u_i looks uniform, dog still comes out with probability 0.7 * 3/7 = 0.3
 
-for full security across many queries the model first generates a natural high-entropy prefix r, which is included in later PRF inputs
+real vocabularies have about 32,000 tokens, so about 15 bits per token
+
+the numbers are my own toy example
+
+--
+Decoding: Scoring the Candidates
+
+source: zamir2024
+
+the receiver sees dog, so the bits are x_1 = 0, x_2 = 1
+for each candidate symbol it recomputes u_i and scores how well the bits fit:
+s(x_i, u_i) = ln(1/u_i) if x_i = 1, ln(1/(1 - u_i)) if x_i = 0
+
+table:
+correct sigma: u_1 = 0.62, s = ln(1/0.38) = 0.97; u_2 = 0.25, s = ln(1/0.25) = 1.39
+wrong sigma': u_1 = 0.45, s = ln(1/0.55) = 0.60; u_2 = 0.70, s = ln(1/0.70) = 0.36
+
+ - correct sigma: total 2.36, wrong sigma': total 0.96
+ - the receiver never uses p_1 or p_2
+
+s:
+the receiver turns the observed token back into bits with the tokenizer
+
+for each candidate symbol it computes u_i = F_k(r, i, sigma') and adds up the scores
+
+a 1 only comes out when u_i <= p_i, so with the correct symbol, 1s come with small u_i and 0s with large u_i, both give high scores
+
+with a wrong symbol, u_i is unrelated to the bits, the score is on average 1 per bit
+
+the correct score grows faster, roughly by the entropy of the text
+
+low-entropy bits (p_i close to 0 or 1) give the correct symbol almost no advantage
+
+the receiver needs only the key and the tokenizer, not the model
+
+--
+Perfect vs Computational Steganography with LLMs
+
+source: dewitt2022, zamir2024
+
+table:
+                        iMEC (de Witt et al.)              PRF scheme (Zamir)
+security                perfect, KL = 0                    computational, assumes PRFs
+key                     one-time pad, as long as message   short, reusable
+receiver needs          model + prompt, exact numerics     key + text only
+capacity                close to the entropy               Theta(L) bits, larger constants
+many queries            fresh key material each time       random-prefix trick
+
+s:
+both schemes leave the token distribution unchanged, they differ in what the receiver must know and how strong the guarantee is
+
+iMEC: the receiver has to recompute every next-token distribution, so it must know the model and the prompt and reproduce the sampling bit for bit
+
+Zamir: the decoder only needs the key and the text, Zamir points this out as the defining difference of the LLM setting: the channel distribution is unknown to the receiver
+
+safety angle: a model leaking information to an outside reader who does not see the prompt fits Zamir
+two instances of the same model that share the context, e.g. a policy and an untrusted monitor, could in principle use MEC
 
 --
 From Steganography to Watermarking
 
-source: aaronson2022, dathathri2024
+source: aaronson2023, dathathri2024
 
 a watermark is steganography with a one-bit payload: "this text came from our model"
 

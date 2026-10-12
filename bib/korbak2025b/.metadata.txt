@@ -1,0 +1,8 @@
+Title: Chain of Thought Monitorability: A New and Fragile Opportunity for AI Safety
+Author: Korbak
+Year: 2025
+Type: preprint
+Citation Key: korbak2025b
+Zotero Key: FMPWG69C
+URL: https://arxiv.org/abs/2507.11473
+Abstract: AI systems that "think" in human language offer a unique opportunity for AI safety: we can monitor their chains of thought (CoT) for the intent to misbehave. Like all other known AI oversight methods, CoT monitoring is imperfect and allows some misbehavior to go unnoticed. Nevertheless, it shows promise and we recommend further research into CoT monitorability and investment in CoT monitoring alongside existing safety methods. Because CoT monitorability may be fragile, we recommend that frontier model developers consider the impact of development decisions on CoT monitorability.

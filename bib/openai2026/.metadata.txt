@@ -1,0 +1,8 @@
+Title: GPT-6 Astra System Card
+Author: OpenAI
+Year: 2026
+Type: report
+Citation Key: openai2026
+Zotero Key: 4WVCMX2F
+URL: https://deploymentsafety.openai.com/gpt-6-astra
+Abstract: System card for GPT-6 Astra, covering model safety, alignment, chain-of-thought monitorability and controllability, Preparedness Framework evaluations, and safeguards. Published September 3, 2026, with updates through September 29, 2026.

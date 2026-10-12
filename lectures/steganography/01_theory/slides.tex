@@ -1,7 +1,27 @@
 % Chapter: 01_theory
 % Included from lectures/steganography/main.tex
 
-\section{Steganography: Theory}
+\section{Theory}
+
+\begin{frame}{}
+\vfill
+\begin{center}
+\begin{minipage}{0.75\textwidth}
+\Large
+``The most important part of any secret is the knowledge that a secret exists.''
+\end{minipage}
+\end{center}
+
+\source{yudkowsky2015}
+
+\note{
+\begin{itemize}
+\item Harry, explaining to Hermione why he cannot teach her his version of the Patronus Charm
+\item Even if she kept the method secret, showing the result would reveal that there is something to find
+\item This is the difference between steganography and encryption: encryption hides what a message says, steganography hides that there is a message
+\end{itemize}
+}
+\end{frame}
 
 \begin{frame}{What is Steganography?}
 \begin{columns}[T]
@@ -273,11 +293,12 @@ An unbounded adversary may still break the scheme.
 
 \begin{frame}{Pseudorandom Functions}
 A \textbf{PRF} is a family of keyed functions
-$$F = \left\{ F_k : \{0,1\}^{\ell_1(\lambda)} \to \{0,1\}^{\ell_2(\lambda)} \;\middle|\; k \in \{0,1\}^{\lambda} \right\}$$
+$$F_k : \{0,1\}^{\ell_1} \to \{0,1\}^{\ell_2}, \qquad \text{one for each key } k \in \{0,1\}^{\lambda}$$
 \begin{enumerate}
 \item $F_k$ is efficiently computable given $k$
 \item For every polynomial-time distinguisher $D$ and a truly random function $f$:
-$$\left| \Pr_{k}\left[ D^{F_k}(1^\lambda) = 1 \right] - \Pr_{f}\left[ D^{f}(1^\lambda) = 1 \right] \right| \leq \mathrm{negl}(\lambda)$$
+$$\tfrac{1}{2} \Pr_{k \sim \mathrm{Unif}(\{0,1\}^\lambda)}\big[\, D^{F_k} = 0 \,\big] + \tfrac{1}{2} \Pr_{f}\big[\, D^{f} = 1 \,\big] \leq \tfrac{1}{2} + \mathrm{negl}(\lambda)$$
+$$\text{where } \forall c > 0 \;\, \exists N \;\, \forall \lambda > N : \;\; \mathrm{negl}(\lambda) < \lambda^{-c}$$
 \end{enumerate}
 \vspace{0.5em}
 A short key, but to efficient algorithms it looks like a truly random function.
